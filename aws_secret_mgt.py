@@ -9,7 +9,7 @@ import boto3
 from botocore.exceptions import ClientError
 
 # Local application imports
-from shared.config.aws_config import AWSConfig
+from aws_config import AWSConfig
 
 class AWSSecretManager:
     """Centralized AWS Secrets Manager handler"""
@@ -81,17 +81,17 @@ def get_aws_credentials() -> Dict[str, str]:
         'region_name': os.getenv('AWS_REGION', AWSConfig.REGION_NAME)
     }
 
-# Example usage:
-if __name__ == "__main__":
-    # Initialize with default config
-    secret_manager = AWSSecretManager()
+# # Example usage:
+# if __name__ == "__main__":
+#     # Initialize with default config
+#     secret_manager = AWSSecretManager()
     
-    # Or initialize with custom config
-    custom_config = AWSConfig(
-        REGION_NAME="us-west-2",
-        DB_SECRET_NAME="custom-db-config",
-        OPENAI_SECRET_NAME="custom-openai",
-        VIIRS_SECRET_NAME="custom-viirs"
-    )
-    custom_secret_manager = AWSSecretManager(custom_config)
+#     # Or initialize with custom config
+#     custom_config = AWSConfig(
+#         REGION_NAME="us-west-2",
+#         DB_SECRET_NAME="custom-db-config",
+#         OPENAI_SECRET_NAME="custom-openai",
+#         VIIRS_SECRET_NAME="custom-viirs"
+#     )
+#     custom_secret_manager = AWSSecretManager(custom_config)
 
