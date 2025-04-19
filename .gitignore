@@ -9,3 +9,16 @@ rules/*
 .cursorrules
 
 .cursorrules
+*/.__pycache__
+*/.pytest_cache
+*/.vscode
+*/.idea
+*/.DS_Store
+*/.venv
+
+
+# Ignore Python cache directories
+__pycache__/
+**/__pycache__/
+
+

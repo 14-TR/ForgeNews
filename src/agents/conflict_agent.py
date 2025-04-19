@@ -1,11 +1,14 @@
 """Conflict agent for pulling ACLED data and flagging events."""
 
 import os
-import requests
+import requests  # type: ignore
 import json
 from core.guardrails import pii_filter
+from typing import Optional, Tuple, List, Dict, Any, cast
 
-def get_conflict_feed(limit: int = 100, region: str = None, date_range: tuple = None):
+def get_conflict_feed(limit: int = 100,
+                      region: Optional[str] = None,
+                      date_range: Optional[Tuple[str, str]] = None) -> List[Dict[str, Any]]:
     """Fetch conflict feed from ACLED with optional region and date range."""
     api_key = os.getenv("ACLED_API_KEY")
     if not api_key:
@@ -20,20 +23,22 @@ def get_conflict_feed(limit: int = 100, region: str = None, date_range: tuple = 
     if resp.status_code != 200:
         raise RuntimeError(f"ACLED API error: {resp.status_code}")
     payload = resp.json()
-    return payload.get("data", [])
+    data = payload.get("data", [])
+    return cast(List[Dict[str, Any]], data)
 
 
-def flag_event(event: dict, threshold: int = 10) -> dict:
+def flag_event(event: Dict[str, Any], threshold: int = 10) -> Dict[str, Any]:
     """Flag events where fatalities exceed a threshold."""
     count = event.get("fatalities", 0)
     flagged = count >= threshold
     return {"flagged": flagged, "event": event}
 
-def run():
+def run() -> Dict[str, Any]:
     """Entrypoint for the conflict agent, with PII sanitization."""
     events = get_conflict_feed()
     flagged = [flag_event(e) for e in events]
-    result = {"status": "success", "data": flagged}
+    result: Dict[str, Any] = {"status": "success", "data": flagged}
     # Sanitize output for PII
     filtered = pii_filter(json.dumps(result))
-    return json.loads(filtered)
+    filtered_json = json.loads(filtered)
+    return cast(Dict[str, Any], filtered_json)

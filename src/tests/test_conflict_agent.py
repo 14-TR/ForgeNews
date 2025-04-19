@@ -33,3 +33,27 @@ def test_run_returns_success_and_data(monkeypatch):
     assert result['status'] == 'success'
     assert isinstance(result['data'], list)
     assert all(item.get('flagged') for item in result['data'])
+
+def test_get_conflict_feed_with_region_and_date_range(monkeypatch):
+    """Ensure get_conflict_feed applies region and date_range parameters to the API request."""
+    fake_events = [{'fatalities': 0}]
+    class FakeResp:
+        status_code = 200
+        def json(self):
+            return {'data': fake_events}
+    def fake_get(url, params):
+        assert params['region'] == 'TestRegion'
+        assert params['start_date'] == '2021-01-01'
+        assert params['end_date'] == '2021-12-31'
+        return FakeResp()
+    monkeypatch.setenv('ACLED_API_KEY', 'dummy_key')
+    monkeypatch.setattr('agents.conflict_agent.requests.get', fake_get)
+    data = get_conflict_feed(limit=5, region='TestRegion', date_range=('2021-01-01','2021-12-31'))
+    assert data == fake_events
+
+def test_flag_event_threshold():
+    """Ensure flag_event marks events correctly based on threshold."""
+    low = {'fatalities': 5}
+    high = {'fatalities': 15}
+    assert flag_event(low, threshold=10)['flagged'] is False
+    assert flag_event(high, threshold=10)['flagged'] is True

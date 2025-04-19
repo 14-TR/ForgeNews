@@ -1,6 +1,6 @@
 """ToolRegistry metadata module for ForgeNews."""
 
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
 
 
 class ToolInfo:
@@ -13,16 +13,16 @@ class ToolInfo:
 
 class ToolRegistry:
     """Registry that holds metadata for all available tools."""
-    def __init__(self):
+    def __init__(self) -> None:
         self.tools: Dict[str, ToolInfo] = {}
 
-    def register(self, tool_name: str, risk_level: str, tool_type: str):
+    def register(self, tool_name: str, risk_level: str, tool_type: str) -> None:
         self.tools[tool_name] = ToolInfo(tool_name, risk_level, tool_type)
 
-    def get(self, tool_name: str) -> Any:
+    def get(self, tool_name: str) -> Optional[ToolInfo]:
         return self.tools.get(tool_name)
 
-    def block_high_risk(self):
+    def block_high_risk(self) -> List[str]:
         """Return names of tools that are high-risk."""
         return [name for name, info in self.tools.items() if info.risk_level.lower() == 'high']
 

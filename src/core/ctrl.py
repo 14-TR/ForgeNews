@@ -6,10 +6,11 @@ Ensures efficient deployment and monitoring of modular agents.
 from datetime import datetime
 import json
 import os
-from typing import Dict, Any
+from typing import Dict, Any, Callable, Optional
 from pathlib import Path
 from agents.example_agent import run as example_agent_run
 from agents.conflict_agent import run as conflict_agent_run
+import time
 
 # Default state file, can be overridden for testing
 STATE_FILE = "pipeline_state.json"
@@ -58,7 +59,7 @@ def log_run(agent_name: str, result: bool) -> None:
     save_state(state)
 
 # Helper to append entries to the run log
-def _append_runlog(agent_name: str, status: str, timestamp: str):
+def _append_runlog(agent_name: str, status: str, timestamp: str, duration: Optional[float] = None) -> None:
     runlog_path = os.path.join('logs', 'runlog.json')
     try:
         if os.path.exists(runlog_path):
@@ -66,14 +67,16 @@ def _append_runlog(agent_name: str, status: str, timestamp: str):
                 logs = json.load(f)
         else:
             logs = []
-        logs.append({"timestamp": timestamp, "agent": agent_name, "status": status})
+        logs.append({"timestamp": timestamp, "agent": agent_name, "status": status, "duration": duration})
         with open(runlog_path, 'w') as f:
             json.dump(logs, f, indent=2)
     except Exception:
         pass
 
-def execute_agent(agent_callable, agent_name: str, interval_hours: int = 24):
+def execute_agent(agent_callable: Callable[..., Any], agent_name: str, interval_hours: int = 24) -> Any:
     """Executes an agent if conditions are met, then logs the outcome."""
+    status: str = 'blocked'
+    start_time = time.time()
     timestamp = datetime.utcnow().isoformat()
     # Check whether we can run
     if check_last_run(agent_name, interval_hours):
@@ -87,8 +90,11 @@ def execute_agent(agent_callable, agent_name: str, interval_hours: int = 24):
             status = 'failure'
             raise e
         finally:
-            _append_runlog(agent_name, status, timestamp)
+            end_time = time.time()
+            duration = end_time - start_time
+            _append_runlog(agent_name, status, timestamp, duration)
     # Blocked by timing
     status = 'blocked'
-    _append_runlog(agent_name, status, timestamp)
+    # No execution, duration = 0
+    _append_runlog(agent_name, status, timestamp, 0)
     return {"status": "blocked", "message": "Run blocked due to interval constraint."}
