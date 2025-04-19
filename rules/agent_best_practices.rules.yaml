@@ -1,0 +1,57 @@
+{
+    "rules": {
+      "agent_design": {
+        "model_selection": {
+          "baseline_with_capable_model": true,
+          "eval_before_scaling_down_model": true,
+          "accuracy_priority": true,
+          "cost_latency_optimization": "secondary"
+        },
+        "tools_definition": {
+          "clear_tool_typing": ["data", "action", "orchestration"],
+          "tool_reusability": true,
+          "standardized_definitions": true,
+          "tool_documentation_required": true
+        },
+        "instructions_configuration": {
+          "clarity_over_ambiguity": true,
+          "explicit_step_actions": true,
+          "edge_case_handling": true,
+          "existing_documents_preferred": true
+        }
+      },
+      "orchestration": {
+        "agent_complexity": {
+          "single_agent_maximized_first": true,
+          "multi_agent_on_demand_only": true,
+          "agent_splitting_conditions": ["complex_logic", "tool_overload"]
+        },
+        "patterns": {
+          "preferred_pattern": "manager",
+          "manager_pattern_central_agent": "ctrl",
+          "agent_handoff_allowed": true,
+          "decentralized_pattern_for_specialized_tasks": true
+        }
+      },
+      "guardrails": {
+        "mandatory_guardrails": ["relevance_classifier", "safety_classifier", "pii_filter", "moderation", "tool_safeguards", "rules_based_protections"],
+        "human_intervention": {
+          "high_risk_actions": "mandatory",
+          "failure_threshold_intervention": true,
+          "intervention_protocol_clear": true
+        },
+        "optimistic_execution": true
+      },
+      "security_and_privacy": {
+        "env_vars_for_secrets": true,
+        "plaintext_secrets_prohibited": true,
+        "secure_http_requests": true
+      },
+      "evaluation_and_testing": {
+        "incremental_capability_testing": true,
+        "user_validation_before_scaling": true,
+        "clear_performance_baseline": true
+      }
+    }
+  }
+  

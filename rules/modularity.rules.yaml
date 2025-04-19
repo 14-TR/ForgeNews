@@ -1,0 +1,9 @@
+{
+    "rules": {
+      "single_responsibility": true,
+      "max_module_length": 300,
+      "explicit_exports": true,
+      "dependency_injection": "encouraged"
+    }
+  }
+  

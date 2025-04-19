@@ -1,0 +1,10 @@
+{
+    "rules": {
+      "file_names": "snake_case",
+      "directory_names": "snake_case",
+      "functions": "snake_case",
+      "classes": "PascalCase",
+      "constants": "UPPER_SNAKE_CASE"
+    }
+  }
+  

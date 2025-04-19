@@ -1,0 +1,9 @@
+{
+    "rules": {
+      "no_plaintext_secrets": true,
+      "use_env_files": true,
+      "validate_inputs": true,
+      "secure_http_requests": true
+    }
+  }
+  
