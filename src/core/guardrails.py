@@ -26,6 +26,19 @@ def moderation_check(input_text: str) -> bool:
 def execute_guardrails(input_text: str, additional_info: str = "") -> bool:
     """
     Executes guardrails on the input text.
-    Currently a stub that allows all inputs.
+    Currently composes relevance, safety, and moderation checks.
     """
+    # Relevance check
+    if not relevance_classifier(input_text):
+        return False
+
+    # Safety check (e.g., jailbreak detection)
+    if not safety_classifier(input_text):
+        return False
+
+    # Moderation check for harmful or inappropriate content
+    if not moderation_check(input_text):
+        return False
+
+    # All checks passed
     return True

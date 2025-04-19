@@ -8,8 +8,8 @@ import json
 import os
 from typing import Dict, Any
 from pathlib import Path
-# Temporary agent registry
 from agents.example_agent import run as example_agent_run
+from agents.conflict_agent import run as conflict_agent_run
 
 # Default state file, can be overridden for testing
 STATE_FILE = "pipeline_state.json"
@@ -17,8 +17,9 @@ STATE_FILE = "pipeline_state.json"
 # Global registry for agents
 AGENT_REGISTRY = {}
 
-# Automatically register the dummy agent
+# Auto register agents
 AGENT_REGISTRY["example_agent"] = example_agent_run
+AGENT_REGISTRY["conflict_agent"] = conflict_agent_run
 
 def load_state() -> Dict[str, Any]:
     """Load the pipeline state from the state file. Returns a dict."""
@@ -56,12 +57,38 @@ def log_run(agent_name: str, result: bool) -> None:
     state[agent_name] = datetime.utcnow().isoformat()
     save_state(state)
 
+# Helper to append entries to the run log
+def _append_runlog(agent_name: str, status: str, timestamp: str):
+    runlog_path = os.path.join('logs', 'runlog.json')
+    try:
+        if os.path.exists(runlog_path):
+            with open(runlog_path, 'r') as f:
+                logs = json.load(f)
+        else:
+            logs = []
+        logs.append({"timestamp": timestamp, "agent": agent_name, "status": status})
+        with open(runlog_path, 'w') as f:
+            json.dump(logs, f, indent=2)
+    except Exception:
+        pass
+
 def execute_agent(agent_callable, agent_name: str, interval_hours: int = 24):
-    """Executes an agent if conditions are met."""
+    """Executes an agent if conditions are met, then logs the outcome."""
+    timestamp = datetime.utcnow().isoformat()
+    # Check whether we can run
     if check_last_run(agent_name, interval_hours):
         try:
-            agent_callable()
+            result = agent_callable()
             log_run(agent_name, result=True)
+            status = 'success'
+            return result
         except Exception as e:
             log_run(agent_name, result=False)
+            status = 'failure'
             raise e
+        finally:
+            _append_runlog(agent_name, status, timestamp)
+    # Blocked by timing
+    status = 'blocked'
+    _append_runlog(agent_name, status, timestamp)
+    return {"status": "blocked", "message": "Run blocked due to interval constraint."}

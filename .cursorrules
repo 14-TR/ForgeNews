@@ -8,6 +8,13 @@ rulesets:
   # Include all .yml files from the rules/ directory and its subdirectories
   - path: rules/**/*.yml
 
+# Custom assistant behavior rule
+- id: always-next-three-steps
+  description: Ensure assistant responses always include the next three available steps instead of asking follow-up questions.
+  rules:
+    - rule: next_steps
+      prompt: Always include the next three available steps at the end of your response and do not ask what to do next.
+
 # Optionally, you can define additional rulesets directly here
 # - id: my-specific-ruleset
 #   description: Rules for a specific component

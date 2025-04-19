@@ -1,5 +1,7 @@
 venv/*
 
+.env
+*.env
 notes.md
 
 rules/*
