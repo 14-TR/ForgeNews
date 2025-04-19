@@ -8,33 +8,50 @@ import json
 import os
 from typing import Dict, Any
 from pathlib import Path
+# Temporary agent registry
+from agents.example_agent import run as example_agent_run
 
-STATE_FILE = Path("pipeline_state.json")
+# Default state file, can be overridden for testing
+STATE_FILE = "pipeline_state.json"
+
+# Global registry for agents
+AGENT_REGISTRY = {}
+
+# Automatically register the dummy agent
+AGENT_REGISTRY["example_agent"] = example_agent_run
 
 def load_state() -> Dict[str, Any]:
-    """Loads the pipeline state from the state file."""
-    if STATE_FILE.exists():
-        with open(STATE_FILE, 'r') as file:
-            return json.load(file)
-    return {}
+    """Load the pipeline state from the state file. Returns a dict."""
+    if not os.path.exists(STATE_FILE):
+        return {}
+    try:
+        with open(STATE_FILE, 'r') as f:
+            return json.load(f)
+    except Exception:
+        return {}
 
 def save_state(state: Dict[str, Any]) -> None:
-    """Saves the current pipeline state."""
-    with open(STATE_FILE, 'w') as file:
-        json.dump(state, file, indent=2)
+    """Save the given state dict to the state file."""
+    with open(STATE_FILE, 'w') as f:
+        json.dump(state, f)
 
 def check_last_run(agent_name: str, interval_hours: int) -> bool:
-    """Checks if enough time has elapsed since the agent's last run."""
+    """Check if enough time has passed since the last run of the given agent.\
+    Returns True if the agent can be run (either it has never run, or the interval has passed.)."""
     state = load_state()
-    last_run = state.get(agent_name)
-    if last_run:
-        last_run_time = datetime.fromisoformat(last_run)
-        elapsed_hours = (datetime.utcnow() - last_run_time).total_seconds() / 3600
-        return elapsed_hours >= interval_hours
-    return True
+    if agent_name not in state:
+        return True
+    try:
+        last_run_time = datetime.fromisoformat(state[agent_name])
+    except Exception:
+        return True
+    now = datetime.utcnow()
+    diff_hours = (now - last_run_time).total_seconds() / 3600.0
+    return diff_hours >= interval_hours
 
-def log_run(agent_name: str, success: bool) -> None:
-    """Logs the agent run status and timestamp."""
+def log_run(agent_name: str, result: bool) -> None:
+    """Log an agent run by updating its last run timestamp in the state file.\
+    The 'result' parameter can be used for additional processing if needed."""
     state = load_state()
     state[agent_name] = datetime.utcnow().isoformat()
     save_state(state)
@@ -44,7 +61,7 @@ def execute_agent(agent_callable, agent_name: str, interval_hours: int = 24):
     if check_last_run(agent_name, interval_hours):
         try:
             agent_callable()
-            log_run(agent_name, success=True)
+            log_run(agent_name, result=True)
         except Exception as e:
-            log_run(agent_name, success=False)
+            log_run(agent_name, result=False)
             raise e

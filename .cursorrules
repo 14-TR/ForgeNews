@@ -1,14 +1,18 @@
+'''yaml
 # .cursorrules
 
 rulesets:
-  # Include all .yaml or .yml files from the rules/ directory
+  # Include all .yaml files from the rules/ directory and its subdirectories
   - path: rules/**/*.yaml
+  
+  # Include all .yml files from the rules/ directory and its subdirectories
   - path: rules/**/*.yml
 
-# You could also define specific rulesets directly here if needed
+# Optionally, you can define additional rulesets directly here
 # - id: my-specific-ruleset
 #   description: Rules for a specific component
 #   rules:
 #     - rule: enforce-type-hints
 #       pattern: src/core/**/*.py
 #       prompt: Ensure all function parameters and return values have type hints.
+'''
