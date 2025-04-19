@@ -57,3 +57,32 @@ def test_flag_event_threshold():
     high = {'fatalities': 15}
     assert flag_event(low, threshold=10)['flagged'] is False
     assert flag_event(high, threshold=10)['flagged'] is True
+
+def test_get_conflict_feed_defaults_to_today(monkeypatch):
+    """Ensure get_conflict_feed defaults to today's date for start_date and end_date."""
+    # Prepare fake response
+    fake_events = []
+    class FakeResp:
+        status_code = 200
+        def json(self):
+            return {'data': fake_events}
+
+    # Monkeypatch date to return a fixed date
+    import agents.conflict_agent as mod
+    import datetime
+    monkeypatch.setenv('ACLED_API_KEY', 'dummy_key')
+    class FakeDate:
+        @classmethod
+        def today(cls):
+            return datetime.date(2025, 4, 19)
+    monkeypatch.setattr(mod, 'date', FakeDate)
+    # Patch requests.get
+    def fake_get(url, params):
+        assert params['start_date'] == '2025-04-19'
+        assert params['end_date'] == '2025-04-19'
+        return FakeResp()
+    monkeypatch.setattr('agents.conflict_agent.requests.get', fake_get)
+
+    # Call without date_range
+    data = get_conflict_feed()
+    assert data == fake_events

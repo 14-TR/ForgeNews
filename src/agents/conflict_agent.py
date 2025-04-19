@@ -5,11 +5,16 @@ import requests  # type: ignore
 import json
 from core.guardrails import pii_filter
 from typing import Optional, Tuple, List, Dict, Any, cast
+from datetime import date
 
 def get_conflict_feed(limit: int = 100,
                       region: Optional[str] = None,
                       date_range: Optional[Tuple[str, str]] = None) -> List[Dict[str, Any]]:
     """Fetch conflict feed from ACLED with optional region and date range."""
+    # Default to today's date if no date_range provided
+    if date_range is None:
+        today_str = date.today().isoformat()
+        date_range = (today_str, today_str)
     api_key = os.getenv("ACLED_API_KEY")
     if not api_key:
         raise EnvironmentError("ACLED_API_KEY not set in environment")
@@ -17,7 +22,8 @@ def get_conflict_feed(limit: int = 100,
     params = {"key": api_key, "limit": limit}
     if region:
         params["region"] = region
-    if date_range and len(date_range) == 2:
+    # Apply date_range (start_date and end_date) for filtering
+    if len(date_range) == 2:
         params["start_date"], params["end_date"] = date_range
     resp = requests.get(url, params=params)
     if resp.status_code != 200:
