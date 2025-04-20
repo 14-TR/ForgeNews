@@ -1,0 +1,178 @@
+[
+  {
+    "timestamp": "2025-04-20T22:32:32.161606",
+    "agent": "conflict_agent",
+    "status": "blocked_interval",
+    "duration": 0,
+    "level": "INFO",
+    "tool_risks": {
+      "get_conflict_feed": "low",
+      "flag_event": "medium",
+      "get_summary": "low"
+    }
+  },
+  {
+    "timestamp": "2025-04-20T22:32:32.164802",
+    "agent": "insight_agent",
+    "status": "failure",
+    "duration": 0.0049397945404052734,
+    "level": "ERROR",
+    "tool_risks": {
+      "analyze_conflict": "medium"
+    }
+  },
+  {
+    "timestamp": "2025-04-20T22:32:32.184712",
+    "agent": "llm_report_agent",
+    "status": "blocked_high_risk",
+    "duration": 0,
+    "level": "WARNING",
+    "tool_risks": {
+      "get_summary": "low",
+      "generate_llm_report": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-20T22:32:32.199041",
+    "agent": "substack_agent",
+    "status": "blocked_high_risk",
+    "duration": 0,
+    "level": "WARNING",
+    "tool_risks": {
+      "get_content": "low",
+      "publish_newsletter": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-20T22:36:04.773781",
+    "agent": "conflict_agent",
+    "status": "success",
+    "duration": 6.4049232006073,
+    "level": "INFO",
+    "tool_risks": {
+      "get_conflict_feed": "low",
+      "flag_event": "medium",
+      "get_summary": "low"
+    }
+  },
+  {
+    "timestamp": "2025-04-20T22:36:11.186582",
+    "agent": "insight_agent",
+    "status": "failure",
+    "duration": 0.009673595428466797,
+    "level": "ERROR",
+    "tool_risks": {
+      "analyze_conflict": "medium"
+    }
+  },
+  {
+    "timestamp": "2025-04-20T22:36:11.204968",
+    "agent": "llm_report_agent",
+    "status": "blocked_high_risk",
+    "duration": 0,
+    "level": "WARNING",
+    "tool_risks": {
+      "get_summary": "low",
+      "generate_llm_report": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-20T22:36:11.216729",
+    "agent": "substack_agent",
+    "status": "blocked_high_risk",
+    "duration": 0,
+    "level": "WARNING",
+    "tool_risks": {
+      "get_content": "low",
+      "publish_newsletter": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-20T22:37:43.174038",
+    "agent": "conflict_agent",
+    "status": "success",
+    "duration": 6.156380891799927,
+    "level": "INFO",
+    "tool_risks": {
+      "get_conflict_feed": "low",
+      "flag_event": "medium",
+      "get_summary": "low"
+    }
+  },
+  {
+    "timestamp": "2025-04-20T22:37:49.338177",
+    "agent": "insight_agent",
+    "status": "failure",
+    "duration": 0.016591310501098633,
+    "level": "ERROR",
+    "tool_risks": {
+      "analyze_conflict": "medium"
+    }
+  },
+  {
+    "timestamp": "2025-04-20T22:37:49.365867",
+    "agent": "llm_report_agent",
+    "status": "success",
+    "duration": 3.0873773097991943,
+    "level": "INFO",
+    "tool_risks": {
+      "get_summary": "low",
+      "generate_llm_report": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-20T22:37:52.462842",
+    "agent": "substack_agent",
+    "status": "success",
+    "duration": 0.009472370147705078,
+    "level": "INFO",
+    "tool_risks": {
+      "get_content": "low",
+      "publish_newsletter": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-20T22:40:45.578985",
+    "agent": "conflict_agent",
+    "status": "success",
+    "duration": 6.031911373138428,
+    "level": "INFO",
+    "tool_risks": {
+      "get_conflict_feed": "low",
+      "flag_event": "medium",
+      "get_summary": "low"
+    }
+  },
+  {
+    "timestamp": "2025-04-20T22:40:51.620461",
+    "agent": "insight_agent",
+    "status": "failure",
+    "duration": 0.011814594268798828,
+    "level": "ERROR",
+    "tool_risks": {
+      "analyze_conflict": "medium"
+    }
+  },
+  {
+    "timestamp": "2025-04-20T22:40:51.643239",
+    "agent": "llm_report_agent",
+    "status": "success",
+    "duration": 2.5441880226135254,
+    "level": "INFO",
+    "tool_risks": {
+      "get_summary": "low",
+      "generate_llm_report": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-20T22:40:54.189426",
+    "agent": "substack_agent",
+    "status": "success",
+    "duration": 0.011275529861450195,
+    "level": "INFO",
+    "tool_risks": {
+      "get_content": "low",
+      "publish_newsletter": "high"
+    }
+  }
+]
