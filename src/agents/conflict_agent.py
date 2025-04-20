@@ -6,6 +6,10 @@ import json
 from core.guardrails import pii_filter
 from typing import Optional, Tuple, List, Dict, Any, cast
 from datetime import date
+from dotenv import load_dotenv  # auto-load .env
+from pathlib import Path
+
+load_dotenv()
 
 def get_conflict_feed(limit: int = 100,
                       region: Optional[str] = None,
@@ -18,8 +22,11 @@ def get_conflict_feed(limit: int = 100,
     api_key = os.getenv("ACLED_API_KEY")
     if not api_key:
         raise EnvironmentError("ACLED_API_KEY not set in environment")
+    email = os.getenv("ACLED_EMAIL")
+    if not email:
+        raise EnvironmentError("ACLED_EMAIL not set in environment")
     url = "https://api.acleddata.com/acled/read"
-    params = {"key": api_key, "limit": limit}
+    params = {"key": api_key, "limit": limit, "email": email}
     if region:
         params["region"] = region
     # Apply date_range (start_date and end_date) for filtering
@@ -41,7 +48,26 @@ def flag_event(event: Dict[str, Any], threshold: int = 10) -> Dict[str, Any]:
 
 def run() -> Dict[str, Any]:
     """Entrypoint for the conflict agent, with PII sanitization."""
-    events = get_conflict_feed()
+    # Determine region override from environment if provided
+    region_override = os.getenv("ACLED_REGION")
+    # Determine date_range override from environment if provided
+    start_date = os.getenv("ACLED_START_DATE")
+    end_date = os.getenv("ACLED_END_DATE")
+    if start_date and end_date:
+        events = get_conflict_feed(region=region_override, date_range=(start_date, end_date))
+        file_date = start_date
+    else:
+        events = get_conflict_feed(region=region_override)
+        file_date = date.today().isoformat()
+    # Save raw JSON to data/raw/<date>_conflict.json
+    try:
+        raw_dir = Path(__file__).parents[2] / "data" / "raw"
+        raw_dir.mkdir(parents=True, exist_ok=True)
+        raw_file = raw_dir / f"conflict_{file_date}.json"
+        with raw_file.open("w", encoding="utf-8") as f:
+            json.dump(events, f, indent=2)
+    except Exception:
+        pass
     flagged = [flag_event(e) for e in events]
     result: Dict[str, Any] = {"status": "success", "data": flagged}
     # Sanitize output for PII
