@@ -23,3 +23,11 @@ typing-inspection==0.4.0
 typing_extensions==4.13.2
 urllib3==2.4.0
 uvicorn==0.34.1
+dspy
+matplotlib==3.8.2
+pandas==2.1.4
+numpy==1.26.4
+folium==0.15.0
+branca==0.7.1
+jinja2==3.1.3
+openai==1.32.0

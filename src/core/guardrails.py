@@ -2,6 +2,11 @@
 Guardrails for the ctrl orchestrator.
 Ensures agents operate within safety, privacy, and performance standards.
 """
+import os
+import sys
+
+# Add the parent directory to the Python path to make imports work
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 def relevance_classifier(input_text: str) -> bool:
     """Classifies input text relevance; returns True if relevant."""
