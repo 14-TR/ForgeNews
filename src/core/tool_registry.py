@@ -31,3 +31,4 @@ class ToolRegistry:
 registry = ToolRegistry()
 registry.register('get_conflict_feed', risk_level='low', tool_type='fetch')
 registry.register('flag_event', risk_level='medium', tool_type='analysis')
+registry.register('get_summary', risk_level='low', tool_type='data')

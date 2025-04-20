@@ -1,0 +1,52 @@
+{
+  "period": "2025-04-11 to 2025-04-11",
+  "summary": [
+    {
+      "type": "Battles",
+      "count": 6,
+      "fatalities": 70
+    },
+    {
+      "type": "Explosions/Remote violence",
+      "count": 11,
+      "fatalities": 5
+    },
+    {
+      "type": "Protests",
+      "count": 71,
+      "fatalities": 0
+    },
+    {
+      "type": "Strategic developments",
+      "count": 7,
+      "fatalities": 0
+    },
+    {
+      "type": "Violence against civilians",
+      "count": 5,
+      "fatalities": 5
+    }
+  ],
+  "top_locations": [
+    {
+      "location": "Tepebasi",
+      "count": 2
+    },
+    {
+      "location": "Sahinbey",
+      "count": 2
+    },
+    {
+      "location": "Mentese",
+      "count": 2
+    },
+    {
+      "location": "Majzar",
+      "count": 2
+    },
+    {
+      "location": "Jizeh",
+      "count": 2
+    }
+  ]
+}

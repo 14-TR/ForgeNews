@@ -10,6 +10,10 @@ from typing import Dict, Any, Callable, Optional
 from pathlib import Path
 from agents.example_agent import run as example_agent_run
 from agents.conflict_agent import run as conflict_agent_run
+from agents.report_agent import run as report_agent_run
+from agents.substack_agent import run as substack_agent_run
+from agents.llm_report_agent import run as llm_report_agent_run
+from agents.ctrl_agent import run as ctrl_agent_run
 import time
 
 # Default state file, can be overridden for testing
@@ -21,6 +25,10 @@ AGENT_REGISTRY = {}
 # Auto register agents
 AGENT_REGISTRY["example_agent"] = example_agent_run
 AGENT_REGISTRY["conflict_agent"] = conflict_agent_run
+AGENT_REGISTRY["report_agent"] = report_agent_run
+AGENT_REGISTRY["substack_agent"] = substack_agent_run
+AGENT_REGISTRY["llm_report_agent"] = llm_report_agent_run
+AGENT_REGISTRY["ctrl_agent"] = ctrl_agent_run
 
 def load_state() -> Dict[str, Any]:
     """Load the pipeline state from the state file. Returns a dict."""

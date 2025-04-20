@@ -1,0 +1,11 @@
+{
+    "sqltools.useNodeRuntime": true,
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "fn__sqlite__conflcit",
+            "database": "${workspaceFolder:ForgeNews}/src/db/conflict_data.db"
+        }
+    ]
+}
