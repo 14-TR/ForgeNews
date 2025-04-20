@@ -1,14 +1,25 @@
+'''yaml
 # .cursorrules
 
 rulesets:
-  # Include all .yaml or .yml files from the rules/ directory
+  # Include all .yaml files from the rules/ directory and its subdirectories
   - path: rules/**/*.yaml
+  
+  # Include all .yml files from the rules/ directory and its subdirectories
   - path: rules/**/*.yml
 
-# You could also define specific rulesets directly here if needed
+# Custom assistant behavior rule
+- id: always-next-three-steps
+  description: Ensure assistant responses always include the next three available steps instead of asking follow-up questions.
+  rules:
+    - rule: next_steps
+      prompt: Always include the next three available steps at the end of your response and do not ask what to do next.
+
+# Optionally, you can define additional rulesets directly here
 # - id: my-specific-ruleset
 #   description: Rules for a specific component
 #   rules:
 #     - rule: enforce-type-hints
 #       pattern: src/core/**/*.py
 #       prompt: Ensure all function parameters and return values have type hints.
+'''
