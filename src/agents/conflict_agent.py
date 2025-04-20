@@ -1,14 +1,19 @@
 """Conflict agent for pulling ACLED data and flagging events."""
 
 import os
+import sys
 import requests  # type: ignore
 import json
-from core.guardrails import pii_filter
 from typing import Optional, Tuple, List, Dict, Any, cast
 from datetime import date
 from dotenv import load_dotenv  # auto-load .env
 from pathlib import Path
-from db.sqlite_writer import init_db, insert_event
+
+# Add the parent directory to the Python path to make imports work
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
+from src.core.guardrails import pii_filter
+from src.db.sqlite_writer import init_db, insert_event
 
 load_dotenv()
 

@@ -1,6 +1,11 @@
 """ToolRegistry metadata module for ForgeNews."""
 
+import os
+import sys
 from typing import Dict, Any, List, Optional
+
+# Add the parent directory to the Python path to make imports work
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 
 class ToolInfo:
@@ -32,3 +37,22 @@ registry = ToolRegistry()
 registry.register('get_conflict_feed', risk_level='low', tool_type='fetch')
 registry.register('flag_event', risk_level='medium', tool_type='analysis')
 registry.register('get_summary', risk_level='low', tool_type='data')
+
+# Register AI news agent tools
+registry.register('get_ai_news', risk_level='low', tool_type='fetch')
+
+# Register insight agent tools
+registry.register('analyze_conflict', risk_level='medium', tool_type='analysis')
+
+# Register report agent tools
+registry.register('generate_report', risk_level='medium', tool_type='content')
+
+# Register llm report agent tools
+registry.register('generate_llm_report', risk_level='high', tool_type='llm')
+
+# Register substack agent tools
+registry.register('get_content', risk_level='low', tool_type='fetch')
+registry.register('publish_newsletter', risk_level='high', tool_type='publish')
+
+# Register ctrl agent tools
+registry.register('monitor_agents', risk_level='low', tool_type='monitoring')

@@ -1,6 +1,10 @@
 import sqlite3
 import os
+import sys
 from typing import Dict
+
+# Add the parent directory to the Python path to make imports work
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "conflict_data.db")
 

@@ -24,3 +24,6 @@ __pycache__/
 
 
 project.json
+src/agents/__pycache__/conflict_agent.cpython-312.pyc
+src/core/__pycache__/ctrl.cpython-312.pyc
+src/core/__pycache__/guardrails.cpython-312.pyc

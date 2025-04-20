@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 import os
 import sys
-# Ensure project root and src directory are on PYTHONPATH for direct execution
-root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-sys.path.insert(0, root_dir)
-sys.path.insert(1, os.path.join(root_dir, 'src'))
+
+# Add the parent directory to the Python path to make imports work
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
 """
 Substack agent: generates a newsletter article from conflict summary data.
 """
 from datetime import datetime
 from typing import Dict, Any
-from agents.report_agent import get_summary
+from src.agents.report_agent import get_summary
 
 
 def generate_article(summary: Dict[str, Any]) -> str:

@@ -3,9 +3,14 @@ import sqlite3
 from datetime import date, timedelta
 from typing import Dict, Any
 import os
+import sys
 import json
 
-DB_PATH = os.path.join(os.path.dirname(__file__), os.pardir, "db", "conflict_data.db")
+# Add the parent directory to the Python path to make imports work
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
+# Update path to use proper module paths
+DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "db", "conflict_data.db")
 
 def get_summary(period: str = "daily") -> Dict[str, Any]:
     conn = sqlite3.connect(DB_PATH)
