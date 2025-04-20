@@ -53,12 +53,88 @@ def get_summary(period: str = "daily") -> Dict[str, Any]:
         (start.isoformat(), end.isoformat()),
     )
     loc_rows = cursor.fetchall()
+    # Gather top locations per event type
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT event_type, city, COUNT(*) as cnt
+        FROM conflict_events
+        WHERE event_date BETWEEN ? AND ?
+        GROUP BY event_type, city
+        ORDER BY event_type ASC, cnt DESC;
+        """,
+        (start.isoformat(), end.isoformat()),
+    )
+    loc_by_type_rows = cursor.fetchall()
+    # Build a mapping of event type to top locations
+    locations_by_type = {}
+    for etype, city, cnt in loc_by_type_rows:
+        locations_by_type.setdefault(etype, []).append({"location": city, "count": cnt})
+    # Keep only top 2 locations per type
+    for etype in locations_by_type:
+        locations_by_type[etype] = locations_by_type[etype][:2]
+
+    # Gather top countries per event type
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT event_type, country, COUNT(*) as cnt
+        FROM conflict_events
+        WHERE event_date BETWEEN ? AND ?
+        GROUP BY event_type, country
+        ORDER BY event_type ASC, cnt DESC;
+        """,
+        (start.isoformat(), end.isoformat()),
+    )
+    country_by_type_rows = cursor.fetchall()
+    countries_by_type = {}
+    for etype, country, cnt in country_by_type_rows:
+        countries_by_type.setdefault(etype, []).append({"country": country, "count": cnt})
+    # Keep only top 2 countries per type
+    for etype in countries_by_type:
+        countries_by_type[etype] = countries_by_type[etype][:2]
+
+    # Gather overall top countries
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT country, COUNT(*) as cnt
+        FROM conflict_events
+        WHERE event_date BETWEEN ? AND ?
+        GROUP BY country
+        ORDER BY cnt DESC
+        LIMIT 5;
+        """,
+        (start.isoformat(), end.isoformat()),
+    )
+    country_rows = cursor.fetchall()
+    top_countries = [{"country": r[0], "count": r[1]} for r in country_rows]
+
     conn.close()
+
+    # Rank event types by fatalities and build enriched summary entries
+    rows_sorted = sorted(rows, key=lambda r: r[2], reverse=True)
+    summary_items = []
+    for rank, (etype, count, fatalities) in enumerate(rows_sorted, start=1):
+        summary_items.append({
+            "type": etype,
+            "count": count,
+            "fatalities": fatalities,
+            "importance_rank": rank,
+            "top_locations": locations_by_type.get(etype, []),
+            "top_countries": countries_by_type.get(etype, [])
+        })
+    # Identify top priority events (highest severity by fatalities)
+    priority_events = summary_items[:3]
 
     return {
         "period": f"{start.isoformat()} to {end.isoformat()}",
-        "summary": [{"type": r[0], "count": r[1], "fatalities": r[2]} for r in rows],
-        "top_locations": [{"location": r[0], "count": r[1]} for r in loc_rows]
+        "summary": summary_items,
+        "priority_events": priority_events,
+        "top_locations": [{"location": r[0], "count": r[1]} for r in loc_rows],
+        "top_countries": top_countries,
+        "locations_by_type": locations_by_type,
+        "countries_by_type": countries_by_type
     }
 
 def run() -> Dict[str, Any]:
