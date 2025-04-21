@@ -6,6 +6,7 @@ import os
 import sys
 import argparse
 import json
+import traceback
 
 # Add the src directory to the Python path
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -76,6 +77,9 @@ def main():
                 #     break 
             except Exception as e:
                 print(f"Error executing agent {agent_name}: {e}")
+                print("--- Full Traceback (from run_agent.py) ---")
+                traceback.print_exc(file=sys.stdout)
+                print("--- End Traceback ---")
                 pipeline_results[agent_name] = {"status": "exception", "error": str(e)}
                 # Optional: Decide whether to stop the pipeline on exception
                 # break 

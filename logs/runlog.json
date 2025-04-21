@@ -1,10 +1,10 @@
 [
   {
-    "timestamp": "2025-04-20T22:32:32.161606",
+    "timestamp": "2025-04-21T03:34:43.005533",
     "agent": "conflict_agent",
-    "status": "blocked_interval",
-    "duration": 0,
-    "level": "INFO",
+    "status": "failure",
+    "duration": 30.485097408294678,
+    "level": "ERROR",
     "tool_risks": {
       "get_conflict_feed": "low",
       "flag_event": "medium",
@@ -12,108 +12,20 @@
     }
   },
   {
-    "timestamp": "2025-04-20T22:32:32.164802",
+    "timestamp": "2025-04-21T03:35:13.576733",
     "agent": "insight_agent",
-    "status": "failure",
-    "duration": 0.0049397945404052734,
-    "level": "ERROR",
-    "tool_risks": {
-      "analyze_conflict": "medium"
-    }
-  },
-  {
-    "timestamp": "2025-04-20T22:32:32.184712",
-    "agent": "llm_report_agent",
-    "status": "blocked_high_risk",
-    "duration": 0,
-    "level": "WARNING",
-    "tool_risks": {
-      "get_summary": "low",
-      "generate_llm_report": "high"
-    }
-  },
-  {
-    "timestamp": "2025-04-20T22:32:32.199041",
-    "agent": "substack_agent",
-    "status": "blocked_high_risk",
-    "duration": 0,
-    "level": "WARNING",
-    "tool_risks": {
-      "get_content": "low",
-      "publish_newsletter": "high"
-    }
-  },
-  {
-    "timestamp": "2025-04-20T22:36:04.773781",
-    "agent": "conflict_agent",
     "status": "success",
-    "duration": 6.4049232006073,
+    "duration": 0.10294485092163086,
     "level": "INFO",
     "tool_risks": {
-      "get_conflict_feed": "low",
-      "flag_event": "medium",
-      "get_summary": "low"
-    }
-  },
-  {
-    "timestamp": "2025-04-20T22:36:11.186582",
-    "agent": "insight_agent",
-    "status": "failure",
-    "duration": 0.009673595428466797,
-    "level": "ERROR",
-    "tool_risks": {
       "analyze_conflict": "medium"
     }
   },
   {
-    "timestamp": "2025-04-20T22:36:11.204968",
-    "agent": "llm_report_agent",
-    "status": "blocked_high_risk",
-    "duration": 0,
-    "level": "WARNING",
-    "tool_risks": {
-      "get_summary": "low",
-      "generate_llm_report": "high"
-    }
-  },
-  {
-    "timestamp": "2025-04-20T22:36:11.216729",
-    "agent": "substack_agent",
-    "status": "blocked_high_risk",
-    "duration": 0,
-    "level": "WARNING",
-    "tool_risks": {
-      "get_content": "low",
-      "publish_newsletter": "high"
-    }
-  },
-  {
-    "timestamp": "2025-04-20T22:37:43.174038",
-    "agent": "conflict_agent",
-    "status": "success",
-    "duration": 6.156380891799927,
-    "level": "INFO",
-    "tool_risks": {
-      "get_conflict_feed": "low",
-      "flag_event": "medium",
-      "get_summary": "low"
-    }
-  },
-  {
-    "timestamp": "2025-04-20T22:37:49.338177",
-    "agent": "insight_agent",
-    "status": "failure",
-    "duration": 0.016591310501098633,
-    "level": "ERROR",
-    "tool_risks": {
-      "analyze_conflict": "medium"
-    }
-  },
-  {
-    "timestamp": "2025-04-20T22:37:49.365867",
+    "timestamp": "2025-04-21T03:35:13.682466",
     "agent": "llm_report_agent",
     "status": "success",
-    "duration": 3.0873773097991943,
+    "duration": 3.1137332916259766,
     "level": "INFO",
     "tool_risks": {
       "get_summary": "low",
@@ -121,10 +33,10 @@
     }
   },
   {
-    "timestamp": "2025-04-20T22:37:52.462842",
+    "timestamp": "2025-04-21T03:35:16.797199",
     "agent": "substack_agent",
     "status": "success",
-    "duration": 0.009472370147705078,
+    "duration": 0.010002851486206055,
     "level": "INFO",
     "tool_risks": {
       "get_content": "low",
@@ -132,10 +44,186 @@
     }
   },
   {
-    "timestamp": "2025-04-20T22:40:45.578985",
+    "timestamp": "2025-04-21T03:39:50.595217",
+    "agent": "conflict_agent",
+    "status": "failure",
+    "duration": 30.49496364593506,
+    "level": "ERROR",
+    "tool_risks": {
+      "get_conflict_feed": "low",
+      "flag_event": "medium",
+      "get_summary": "low"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T03:40:21.101386",
+    "agent": "insight_agent",
+    "status": "success",
+    "duration": 0.11714720726013184,
+    "level": "INFO",
+    "tool_risks": {
+      "analyze_conflict": "medium"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T03:40:21.232205",
+    "agent": "llm_report_agent",
+    "status": "success",
+    "duration": 3.396559715270996,
+    "level": "INFO",
+    "tool_risks": {
+      "get_summary": "low",
+      "generate_llm_report": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T03:40:24.638219",
+    "agent": "substack_agent",
+    "status": "success",
+    "duration": 0.010774850845336914,
+    "level": "INFO",
+    "tool_risks": {
+      "get_content": "low",
+      "publish_newsletter": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T03:41:40.166273",
+    "agent": "conflict_agent",
+    "status": "failure",
+    "duration": 30.555287837982178,
+    "level": "ERROR",
+    "tool_risks": {
+      "get_conflict_feed": "low",
+      "flag_event": "medium",
+      "get_summary": "low"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T03:42:10.739422",
+    "agent": "insight_agent",
+    "status": "success",
+    "duration": 0.10310530662536621,
+    "level": "INFO",
+    "tool_risks": {
+      "analyze_conflict": "medium"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T03:42:10.852915",
+    "agent": "llm_report_agent",
+    "status": "success",
+    "duration": 2.9089858531951904,
+    "level": "INFO",
+    "tool_risks": {
+      "get_summary": "low",
+      "generate_llm_report": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T03:42:13.776115",
+    "agent": "substack_agent",
+    "status": "success",
+    "duration": 0.013814210891723633,
+    "level": "INFO",
+    "tool_risks": {
+      "get_content": "low",
+      "publish_newsletter": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T03:48:39.587977",
+    "agent": "conflict_agent",
+    "status": "failure",
+    "duration": 30.51390290260315,
+    "level": "ERROR",
+    "tool_risks": {
+      "get_conflict_feed": "low",
+      "flag_event": "medium",
+      "get_summary": "low"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T03:49:10.117901",
+    "agent": "insight_agent",
+    "status": "failure",
+    "duration": 0.011407852172851562,
+    "level": "ERROR",
+    "tool_risks": {
+      "analyze_conflict": "medium"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T03:49:10.137275",
+    "agent": "llm_report_agent",
+    "status": "success",
+    "duration": 0.006971836090087891,
+    "level": "INFO",
+    "tool_risks": {
+      "get_summary": "low",
+      "generate_llm_report": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T03:49:10.152592",
+    "agent": "substack_agent",
+    "status": "success",
+    "duration": 0.00872802734375,
+    "level": "INFO",
+    "tool_risks": {
+      "get_content": "low",
+      "publish_newsletter": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T03:54:38.063868",
+    "agent": "conflict_agent",
+    "status": "failure",
+    "duration": 330.07179522514343,
+    "level": "ERROR",
+    "tool_risks": {
+      "get_conflict_feed": "low",
+      "flag_event": "medium",
+      "get_summary": "low"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:00:08.278824",
+    "agent": "insight_agent",
+    "status": "failure",
+    "duration": 0.015218734741210938,
+    "level": "ERROR",
+    "tool_risks": {
+      "analyze_conflict": "medium"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:00:08.308124",
+    "agent": "llm_report_agent",
+    "status": "success",
+    "duration": 0.011018991470336914,
+    "level": "INFO",
+    "tool_risks": {
+      "get_summary": "low",
+      "generate_llm_report": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:00:08.327901",
+    "agent": "substack_agent",
+    "status": "success",
+    "duration": 0.01255655288696289,
+    "level": "INFO",
+    "tool_risks": {
+      "get_content": "low",
+      "publish_newsletter": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:03:04.917407",
     "agent": "conflict_agent",
     "status": "success",
-    "duration": 6.031911373138428,
+    "duration": 7.553806304931641,
     "level": "INFO",
     "tool_risks": {
       "get_conflict_feed": "low",
@@ -144,20 +232,20 @@
     }
   },
   {
-    "timestamp": "2025-04-20T22:40:51.620461",
+    "timestamp": "2025-04-21T04:03:12.488126",
     "agent": "insight_agent",
-    "status": "failure",
-    "duration": 0.011814594268798828,
-    "level": "ERROR",
+    "status": "success",
+    "duration": 0.34049463272094727,
+    "level": "INFO",
     "tool_risks": {
       "analyze_conflict": "medium"
     }
   },
   {
-    "timestamp": "2025-04-20T22:40:51.643239",
+    "timestamp": "2025-04-21T04:03:12.842280",
     "agent": "llm_report_agent",
     "status": "success",
-    "duration": 2.5441880226135254,
+    "duration": 5.081846237182617,
     "level": "INFO",
     "tool_risks": {
       "get_summary": "low",
@@ -165,10 +253,274 @@
     }
   },
   {
-    "timestamp": "2025-04-20T22:40:54.189426",
+    "timestamp": "2025-04-21T04:03:17.932465",
     "agent": "substack_agent",
     "status": "success",
-    "duration": 0.011275529861450195,
+    "duration": 0.009790182113647461,
+    "level": "INFO",
+    "tool_risks": {
+      "get_content": "low",
+      "publish_newsletter": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:05:10.154342",
+    "agent": "conflict_agent",
+    "status": "success",
+    "duration": 7.561268091201782,
+    "level": "INFO",
+    "tool_risks": {
+      "get_conflict_feed": "low",
+      "flag_event": "medium",
+      "get_summary": "low"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:05:17.721914",
+    "agent": "insight_agent",
+    "status": "success",
+    "duration": 0.26908278465270996,
+    "level": "INFO",
+    "tool_risks": {
+      "analyze_conflict": "medium"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:05:18.001526",
+    "agent": "llm_report_agent",
+    "status": "success",
+    "duration": 3.331143856048584,
+    "level": "INFO",
+    "tool_risks": {
+      "get_summary": "low",
+      "generate_llm_report": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:05:21.341556",
+    "agent": "substack_agent",
+    "status": "success",
+    "duration": 0.009641408920288086,
+    "level": "INFO",
+    "tool_risks": {
+      "get_content": "low",
+      "publish_newsletter": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:06:13.222220",
+    "agent": "conflict_agent",
+    "status": "success",
+    "duration": 6.411811828613281,
+    "level": "INFO",
+    "tool_risks": {
+      "get_conflict_feed": "low",
+      "flag_event": "medium",
+      "get_summary": "low"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:06:19.651558",
+    "agent": "insight_agent",
+    "status": "success",
+    "duration": 0.2701139450073242,
+    "level": "INFO",
+    "tool_risks": {
+      "analyze_conflict": "medium"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:06:19.931240",
+    "agent": "llm_report_agent",
+    "status": "success",
+    "duration": 3.894716262817383,
+    "level": "INFO",
+    "tool_risks": {
+      "get_summary": "low",
+      "generate_llm_report": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:06:23.834076",
+    "agent": "substack_agent",
+    "status": "success",
+    "duration": 0.011031866073608398,
+    "level": "INFO",
+    "tool_risks": {
+      "get_content": "low",
+      "publish_newsletter": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:07:24.438013",
+    "agent": "conflict_agent",
+    "status": "success",
+    "duration": 6.717777967453003,
+    "level": "INFO",
+    "tool_risks": {
+      "get_conflict_feed": "low",
+      "flag_event": "medium",
+      "get_summary": "low"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:07:31.173683",
+    "agent": "insight_agent",
+    "status": "success",
+    "duration": 0.31950998306274414,
+    "level": "INFO",
+    "tool_risks": {
+      "analyze_conflict": "medium"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:07:31.503038",
+    "agent": "llm_report_agent",
+    "status": "success",
+    "duration": 2.9788384437561035,
+    "level": "INFO",
+    "tool_risks": {
+      "get_summary": "low",
+      "generate_llm_report": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:07:34.491608",
+    "agent": "substack_agent",
+    "status": "success",
+    "duration": 0.012076854705810547,
+    "level": "INFO",
+    "tool_risks": {
+      "get_content": "low",
+      "publish_newsletter": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:13:59.018308",
+    "agent": "conflict_agent",
+    "status": "success",
+    "duration": 7.158451795578003,
+    "level": "INFO",
+    "tool_risks": {
+      "get_conflict_feed": "low",
+      "flag_event": "medium",
+      "get_summary": "low"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:14:06.184832",
+    "agent": "insight_agent",
+    "status": "success",
+    "duration": 0.31127119064331055,
+    "level": "INFO",
+    "tool_risks": {
+      "analyze_conflict": "medium"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:14:06.508836",
+    "agent": "llm_report_agent",
+    "status": "success",
+    "duration": 2.5179741382598877,
+    "level": "INFO",
+    "tool_risks": {
+      "get_summary": "low",
+      "generate_llm_report": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:14:09.035932",
+    "agent": "substack_agent",
+    "status": "success",
+    "duration": 0.01055145263671875,
+    "level": "INFO",
+    "tool_risks": {
+      "get_content": "low",
+      "publish_newsletter": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:22:31.144890",
+    "agent": "conflict_agent",
+    "status": "success",
+    "duration": 6.981795072555542,
+    "level": "INFO",
+    "tool_risks": {
+      "get_conflict_feed": "low",
+      "flag_event": "medium",
+      "get_summary": "low"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:22:38.134678",
+    "agent": "insight_agent",
+    "status": "success",
+    "duration": 0.2875847816467285,
+    "level": "INFO",
+    "tool_risks": {
+      "analyze_conflict": "medium"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:22:38.433308",
+    "agent": "llm_report_agent",
+    "status": "success",
+    "duration": 3.040029287338257,
+    "level": "INFO",
+    "tool_risks": {
+      "get_summary": "low",
+      "generate_llm_report": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:22:41.484808",
+    "agent": "substack_agent",
+    "status": "success",
+    "duration": 0.009772300720214844,
+    "level": "INFO",
+    "tool_risks": {
+      "get_content": "low",
+      "publish_newsletter": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:24:27.233153",
+    "agent": "conflict_agent",
+    "status": "success",
+    "duration": 6.361859083175659,
+    "level": "INFO",
+    "tool_risks": {
+      "get_conflict_feed": "low",
+      "flag_event": "medium",
+      "get_summary": "low"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:24:33.603109",
+    "agent": "insight_agent",
+    "status": "success",
+    "duration": 0.2660946846008301,
+    "level": "INFO",
+    "tool_risks": {
+      "analyze_conflict": "medium"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:24:33.872458",
+    "agent": "llm_report_agent",
+    "status": "success",
+    "duration": 3.613205909729004,
+    "level": "INFO",
+    "tool_risks": {
+      "get_summary": "low",
+      "generate_llm_report": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-21T04:24:37.487564",
+    "agent": "substack_agent",
+    "status": "success",
+    "duration": 0.010225534439086914,
     "level": "INFO",
     "tool_risks": {
       "get_content": "low",

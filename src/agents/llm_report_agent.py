@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import sys
+import traceback
 
 # Add the parent directory to the Python path to make imports work
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
@@ -61,7 +62,8 @@ def get_latest_insight_file() -> Optional[str]:
     if not os.path.exists(processed_dir):
         return None
     
-    pattern = os.path.join(processed_dir, "insight_snapshot_*.json")
+    # Correct the pattern to match the actual insight files
+    pattern = os.path.join(processed_dir, "conflict_insights_*.json") 
     files = glob.glob(pattern)
     if not files:
         return None
@@ -85,7 +87,8 @@ def generate_country_section(country_name: str, profile: Dict[str, Any]) -> str:
     # Add top locations if any
     if profile.get('top_locations'):
         section += "**Top Event Locations:**  \n"
-        for loc in profile.get('top_locations', [])[:3]:
+        # Ensure list before slicing
+        for loc in (profile.get('top_locations') or [])[:3]:
             section += f"- {loc.get('location')}: {loc.get('count')} events  \n"
         section += "\n"
     
@@ -102,15 +105,21 @@ def generate_event_type_section(event_type: str, data: Dict[str, Any]) -> str:
     # Add top locations if any
     if data.get('top_locations'):
         section += "**Top Locations:**  \n"
-        for loc in data.get('top_locations', [])[:3]:
+         # Ensure list before slicing
+        for loc in (data.get('top_locations') or [])[:3]:
             section += f"- {loc.get('location')}: {loc.get('count')} events  \n"
         section += "\n"
     
     # Add top countries if any
     if data.get('top_countries'):
         section += "**Top Countries:**  \n"
-        for country in data.get('top_countries', [])[:3]:
-            section += f"- {country.get('country')}: {country.get('count')} events  \n"
+        # --- Corrected Handling for Dictionary ---
+        top_countries_dict = data.get('top_countries', {}) # Ensure it's a dict
+        # Sort items by count (value) descending, take top 3
+        sorted_countries = sorted(top_countries_dict.items(), key=lambda item: item[1], reverse=True)[:3]
+        for country_name, count in sorted_countries:
+             section += f"- {country_name}: {count} events  \n" # Format directly
+        # --- End Correction ---
         section += "\n"
     
     return section
@@ -125,7 +134,8 @@ def generate_hotspots_section(hotspots: List[Dict[str, Any]]) -> str:
     
     # Add top hotspots
     section += "**Top Event Locations:**  \n"
-    for i, hotspot in enumerate(hotspots[:5], 1):
+    # Ensure list before slicing (hotspots argument is already checked in run() but double-check)
+    for i, hotspot in enumerate((hotspots or [])[:5], 1):
         section += f"{i}. **{hotspot.get('location')}, {hotspot.get('country')}**  \n"
         section += f"   Events: {hotspot.get('count')}, Fatalities: {hotspot.get('fatalities')}  \n"
         section += f"   Event Types: {', '.join(hotspot.get('event_types', []))}  \n\n"
@@ -135,19 +145,38 @@ def generate_hotspots_section(hotspots: List[Dict[str, Any]]) -> str:
 def generate_strategic_alerts_section(alerts: List[Dict[str, Any]]) -> str:
     """Generate a Markdown section for strategic alerts."""
     section = "## Strategic Alerts\n\n"
-    
+
     if not alerts:
         section += "No strategic alerts identified in this period.\n\n"
         return section
-    
+
     # Add alerts with details
     for i, alert in enumerate(alerts, 1):
-        section += f"{i}. **{alert.get('location')}, {alert.get('country')}** ({alert.get('event_date')})  \n"
-        if alert.get('keywords'):
-            section += f"   Keywords: {', '.join(alert.get('keywords'))}  \n"
-        if alert.get('notes'):
-            section += f"   Details: {alert.get('notes')}  \n\n"
-    
+        # Correctly access country/countries information
+        location_info = alert.get('location', {})
+        countries_list = location_info.get('countries', [])
+        location_str = location_info.get('location') # Get specific location if present
+        
+        # Determine primary location display
+        if location_str:
+            display_location = f"{location_str}, {', '.join(countries_list)}"
+        elif countries_list:
+            display_location = ', '.join(countries_list)
+        else:
+            display_location = "Unknown Location"
+            
+        # Get alert type and severity
+        alert_type = alert.get('type', 'Unknown Type')
+        severity = alert.get('severity', 'Unknown')
+
+        # Use description which is available in the insights data
+        description = alert.get('description', 'No details available.')
+
+        section += f"{i}. **{alert_type} ({severity})**: {display_location}  \n"
+        section += f"   Details: {description}  \n\n"
+        # Removed access to alert.get('keywords') and alert.get('notes') as they are not in the insight data
+        # Added severity and type, using description for details
+
     return section
 
 def generate_visualizations_section(insights: Dict[str, Any]) -> str:
@@ -206,125 +235,158 @@ def run() -> Dict[str, Any]:
         # Find the most recent insight snapshot
         insight_file = get_latest_insight_file()
         if not insight_file:
-            # Fall back to the old method of finding summary files
+            # Fall back logic remains, but primary target is conflict_insights
             processed_dir = os.path.join("data", "processed")
-            pattern = os.path.join(processed_dir, "summary_*.json")
+            pattern = os.path.join(processed_dir, "summary_*.json") # Fallback pattern
             files = glob.glob(pattern)
             if not files:
-                raise FileNotFoundError(f"No insight or summary JSON found in {processed_dir}")
+                 # If fallback also fails, raise specific error
+                 raise FileNotFoundError(f"No conflict_insights or summary JSON found.")
             insight_file = max(files, key=os.path.getmtime)
-        
+            print(f"Warning: Could not find conflict_insights file. Falling back to {insight_file}")
+
         # Load insights
         with open(insight_file, "r", encoding="utf-8") as f:
             insights = json.load(f)
-        
-        # Extract period information
-        period = insights.get("period_analyzed", {})
-        period_str = f"{period.get('start_date', 'Unknown')} to {period.get('end_date', 'Unknown')}"
-        
+
+        # --- Corrected Period Extraction ---
+        # Get metadata safely, defaulting to empty dict if not found
+        metadata = insights.get("metadata", {}) 
+        period_start = metadata.get('period_start', 'Unknown')
+        period_end = metadata.get('period_end', 'Unknown')
+        period_str = f"{period_start} to {period_end}"
+        total_events = metadata.get('total_events', 0)
+        total_fatalities = metadata.get('total_fatalities', 0)
+        # --- End Corrected Period Extraction ---
+
         # Start building the comprehensive report
         report_sections = []
-        
+
         # 1. Title and summary section
         report_sections.append(f"# Conflict Analysis Report: {period_str}\n\n")
-        
+
         # 2. Overview section with key metrics
+        # Using variables derived safely above
+        # Removed non-existent 'is_escalating' flag
+        country_profiles_data = insights.get('country_profiles') or {} # Ensure dict before .items()
+        strategic_alerts_data = insights.get('strategic_alerts', [])
         overview = (
             "## Overview\n\n"
-            f"**Total Events:** {insights.get('total_events', 0)}  \n"
-            f"**Total Fatalities:** {insights.get('total_fatalities', 0)}  \n"
-            f"**Escalation Status:** {'⚠️ Escalating' if insights.get('is_escalating', False) else 'Stable'}  \n"
-            f"**Countries Affected:** {len(insights.get('country_profiles', {}))}  \n"
-            f"**Strategic Alerts:** {len(insights.get('strategic_alerts', []))}  \n\n"
+            f"**Total Events:** {total_events}  \n"
+            f"**Total Fatalities:** {total_fatalities}  \n"
+            # f"**Escalation Status:** {'⚠️ Escalating' if insights.get('is_escalating', False) else 'Stable'}  \n" # Removed
+            f"**Countries Affected:** {len(country_profiles_data)}  \n"
+            f"**Strategic Alerts:** {len(strategic_alerts_data)}  \n\n"
         )
         report_sections.append(overview)
-        
+
         # 3. Get LLM-generated narrative summary
         prompt_lines = [
             "You are an expert conflict analyst. Produce a detailed narrative overview of the following conflict data:",
             f"Period: {period_str}",
-            f"Total Events: {insights.get('total_events', 0)}",
-            f"Total Fatalities: {insights.get('total_fatalities', 0)}",
-            f"Is Escalating: {insights.get('is_escalating', False)}",
+            f"Total Events: {total_events}",
+            f"Total Fatalities: {total_fatalities}",
+            # f"Is Escalating: {insights.get('is_escalating', False)}", # Removed
             "\nTop Countries by Events:",
         ]
+        # Safely add top countries to prompt
+        for country, profile in list(country_profiles_data.items())[:5]: # Iterate over copy
+            prompt_lines.append(f"- {country}: {profile.get('events', 0)} events, {profile.get('fatalities', 0)} fatalities")
+
+        prompt_lines.append("\nTop Event Types:")
+        event_type_summary_data = insights.get('event_type_summary', {})
+        for event_type, summary in list(event_type_summary_data.items()): # Iterate over copy
+            prompt_lines.append(f"- {event_type}: {summary.get('count', 0)} events, {summary.get('fatalities', 0)} fatalities")
         
-        # Add top countries information
-        countries = list(insights.get('country_profiles', {}).keys())
-        for country in countries[:5]:
-            profile = insights.get('country_profiles', {}).get(country, {})
-            prompt_lines.append(f"- {country}: {profile.get('total_events', 0)} events, {profile.get('fatalities', 0)} fatalities")
-        
-        # Add hotspots information
-        prompt_lines.append("\nTop Hotspots:")
-        for hotspot in insights.get('hotspots', [])[:5]:
-            prompt_lines.append(f"- {hotspot.get('location')}, {hotspot.get('country')}: {hotspot.get('count')} events, {hotspot.get('fatalities')} fatalities")
-        
-        # Add event type summary
-        prompt_lines.append("\nEvent Types:")
-        for event_type, data in insights.get('event_type_summary', {}).items():
-            prompt_lines.append(f"- {event_type}: {data.get('count')} events, {data.get('fatalities')} fatalities")
-        
-        # Add strategic alerts
-        if insights.get('strategic_alerts'):
-            prompt_lines.append("\nStrategic Alerts:")
-            for alert in insights.get('strategic_alerts', []):
-                prompt_lines.append(f"- {alert.get('location')}, {alert.get('country')}: {alert.get('notes')[:100]}...")
-        
-        prompt_lines.append("\nPlease write a detailed narrative overview (~200 words) of the conflict situation based on this data. Focus on key patterns, escalations, and strategic developments. Highlight the most significant hotspots and countries.")
+        prompt_lines.append("\nKey Hotspots:")
+        hotspots_data = insights.get('hotspots') or [] # Ensure list before slicing
+        for hotspot in hotspots_data[:3]:
+             prompt_lines.append(f"- {hotspot.get('location', '?')}, {hotspot.get('country', '?')}: {hotspot.get('count', 0)} events, {hotspot.get('fatalities', 0)} fatalities")
+
+        prompt_lines.append("\nStrategic Alerts:")
+        strategic_alerts_data = insights.get('strategic_alerts') or [] # Ensure list before slicing
+        for alert in strategic_alerts_data[:3]:
+            prompt_lines.append(f"- {alert.get('type', 'Alert')}: {alert.get('description', 'No description')}")
+            
+        prompt_lines.append("\nPlease provide a concise narrative summary (2-4 paragraphs) focusing on the overall situation, key conflict dynamics, major hotspots, and any significant strategic developments or alerts.")
         
         prompt = "\n".join(prompt_lines)
         
-        response = client.chat.completions.create(
-            model=MODEL,
-            messages=[
-                {"role": "system", "content": "You are an expert conflict analyst who provides insightful, objective analysis of armed conflicts, protests, and political violence globally."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7,
-            max_tokens=400
-        )
-        narrative_overview = response.choices[0].message.content
-        report_sections.append(f"## Narrative Overview\n\n{narrative_overview}\n\n")
+        # Make LLM call
+        try:
+            completion = client.chat.completions.create(
+                model=MODEL,
+                messages=[
+                    {"role": "system", "content": "You are an expert conflict analyst generating report summaries."},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            narrative = completion.choices[0].message.content
+        except Exception as e:
+            print(f"Error calling OpenAI: {e}")
+            narrative = "Narrative generation failed due to API error."
+            
+        report_sections.append("## Narrative Overview\n\n")
+        report_sections.append(narrative or "No narrative generated.")
+        report_sections.append("\n\n")
         
-        # 4. Add hotspots section
-        report_sections.append(generate_hotspots_section(insights.get('hotspots', [])))
+        # 4. Add generated sections for hotspots, alerts, countries, events
+        report_sections.append(generate_hotspots_section(hotspots_data))
+        report_sections.append(generate_strategic_alerts_section(strategic_alerts_data))
         
-        # 5. Add strategic alerts section
-        report_sections.append(generate_strategic_alerts_section(insights.get('strategic_alerts', [])))
-        
-        # 6. Add country profiles section for top 5 countries
+        # Generate Country Profiles section
         report_sections.append("## Country Profiles\n\n")
-        for country in countries[:5]:
-            profile = insights.get('country_profiles', {}).get(country, {})
-            report_sections.append(generate_country_section(country, profile))
-        
-        # 7. Add event type summary section for top event types
+        if country_profiles_data:
+             for country, profile in country_profiles_data.items():
+                 report_sections.append(generate_country_section(country, profile))
+        else:
+             report_sections.append("No country-specific data available.\n\n")
+
+        # Generate Event Type Analysis section
         report_sections.append("## Event Type Analysis\n\n")
-        for event_type, data in list(insights.get('event_type_summary', {}).items())[:5]:
-            report_sections.append(generate_event_type_section(event_type, data))
-        
-        # 8. Add visualizations section
+        if event_type_summary_data:
+            for event_type, data in event_type_summary_data.items():
+                report_sections.append(generate_event_type_section(event_type, data))
+        else:
+             report_sections.append("No event type data available.\n\n")
+
+        # 5. Add Visualizations section
         report_sections.append(generate_visualizations_section(insights))
-        
-        # 9. Add footer with timestamp
-        report_sections.append(f"\n\n---\n\nReport generated by ForgeNews on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} UTC")
-        
+
         # Combine all sections into the final report
-        report_text = "\n".join(report_sections)
+        final_report = "".join(report_sections)
         
-        # Save the report to file
-        os.makedirs("reports", exist_ok=True)
-        date_str = datetime.now().strftime('%Y%m%d')
-        filename = f"reports/conflict_report_{date_str}.md"
-        with open(filename, "w", encoding="utf-8") as f:
-            f.write(report_text)
+        # Add generation timestamp
+        final_report += f"\n\n---\n\nReport generated by ForgeNews on {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}"
         
-        return {"status": "success", "report": report_text, "file": filename}
+        # Save report
+        reports_dir = Path("reports")
+        reports_dir.mkdir(exist_ok=True)
+        report_filename = f"conflict_report_{datetime.utcnow().strftime('%Y%m%d')}.md"
+        report_filepath = reports_dir / report_filename
         
+        # --- Added Logging --- 
+        print(f"Attempting to write report to: {report_filepath}")
+        try:
+            with open(report_filepath, "w", encoding="utf-8") as f:
+                f.write(final_report)
+            print(f"Successfully wrote report to: {report_filepath}") # Log success
+        except Exception as write_error:
+             print(f"!!! FAILED to write report to {report_filepath}: {write_error}")
+             # Optionally re-raise or handle differently
+             raise write_error # Re-raise the error to ensure failure status
+        # --- End Added Logging ---
+            
+        return {"status": "success", "report": final_report, "file": str(report_filepath)}
+
+    except FileNotFoundError as e:
+         print(f"Error: Input data file not found. {e}")
+         return {"status": "error", "message": f"Input data file not found. {e}"}
     except Exception as e:
-        print(f"[llm_report_agent] Error: {str(e)}")
-        return {
-            "status": "error",
-            "message": str(e)
-        } 
+        print(f"Error in llm_report_agent: {e}")
+        # --- Add full traceback printing ---
+        print("--- Full Traceback ---")
+        traceback.print_exc(file=sys.stdout) # Explicitly print to stdout
+        print("--- End Traceback ---")
+        # --- End Add ---
+        return {"status": "error", "message": str(e)} 
