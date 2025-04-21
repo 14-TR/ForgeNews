@@ -13,6 +13,7 @@ from pathlib import Path
 import logging
 from collections import defaultdict
 import numpy as np
+import glob
 
 # Set up logging
 logging.basicConfig(level=logging.INFO,
@@ -22,14 +23,19 @@ logger = logging.getLogger(__name__)
 class InsightAgent:
     """Agent for extracting insights from ACLED conflict data."""
     
-    def __init__(self, processed_data_path: str = os.path.join("data", "processed", "acled_processed.csv")):
+    def __init__(self,
+                 raw_data_dir: str = os.path.join("data", "raw"),
+                 processed_data_dir: str = os.path.join("data", "processed")):
         """
         Initialize the InsightAgent.
         
         Args:
-            processed_data_path: Path to the processed ACLED data CSV
+            raw_data_dir: Path to the directory containing raw ACLED JSON files.
+            processed_data_dir: Path to the directory where processed data will be saved.
         """
-        self.processed_data_path = processed_data_path
+        self.raw_data_dir = Path(raw_data_dir)
+        self.processed_data_dir = Path(processed_data_dir)
+        self.processed_data_path = self.processed_data_dir / "acled_processed.csv"
         self.data = None
         self.insights = {
             "metadata": {
@@ -48,13 +54,88 @@ class InsightAgent:
             "events": []
         }
         
-    def load_data(self) -> None:
-        """Load the processed ACLED data."""
+    def _preprocess_raw_data(self) -> None:
+        """Find the latest raw data, preprocess, and save as CSV."""
         try:
-            self.data = pd.read_csv(self.processed_data_path)
-            logger.info(f"Loaded {len(self.data)} events from {self.processed_data_path}")
+            # Find the latest raw conflict JSON file
+            list_of_files = glob.glob(str(self.raw_data_dir / 'conflict_*.json'))
+            if not list_of_files:
+                logger.error(f"No raw conflict JSON files found in {self.raw_data_dir}")
+                raise FileNotFoundError(f"No raw conflict JSON files found in {self.raw_data_dir}")
+
+            latest_file = max(list_of_files, key=os.path.getctime)
+            logger.info(f"Found latest raw data file: {latest_file}")
+
+            # Load the raw JSON data
+            with open(latest_file, 'r', encoding='utf-8') as f:
+                raw_data = json.load(f)
+
+            # Extract the 'event' data from each item
+            # Handle cases where the structure might be different
+            if isinstance(raw_data, list) and raw_data and isinstance(raw_data[0], dict) and 'event' in raw_data[0]:
+                 events_data = [item['event'] for item in raw_data if 'event' in item]
+            elif isinstance(raw_data, list) and raw_data and isinstance(raw_data[0], dict) and 'event_id_cnty' in raw_data[0]:
+                 # Assume it's already a list of events if 'event' key is missing but other keys exist
+                 events_data = raw_data
+            else:
+                 logger.warning(f"Unexpected raw data structure in {latest_file}. Trying direct load.")
+                 events_data = raw_data # Fallback
+
+            if not events_data:
+                logger.warning(f"No events found in {latest_file}. Processed CSV will be empty.")
+                df = pd.DataFrame() # Create empty DataFrame
+            else:
+                df = pd.DataFrame(events_data)
+                # Basic cleaning (ensure essential columns exist, handle potential type issues if needed)
+                if 'event_date' in df.columns:
+                    df['event_date'] = pd.to_datetime(df['event_date'], errors='coerce')
+                if 'fatalities' in df.columns:
+                    df['fatalities'] = pd.to_numeric(df['fatalities'], errors='coerce').fillna(0).astype(int)
+                else:
+                    df['fatalities'] = 0 # Add fatalities column if missing
+                # Ensure 'data_id' exists if missing (though ACLED usually has event_id_cnty)
+                if 'data_id' not in df.columns and 'event_id_cnty' in df.columns:
+                     df['data_id'] = df['event_id_cnty']
+                elif 'data_id' not in df.columns:
+                     df['data_id'] = df.index # Fallback to index
+
+            # Ensure the processed directory exists
+            self.processed_data_dir.mkdir(parents=True, exist_ok=True)
+
+            # Save as CSV
+            df.to_csv(self.processed_data_path, index=False)
+            logger.info(f"Preprocessed data saved to {self.processed_data_path}")
+
+        except FileNotFoundError:
+            # Re-raise FileNotFoundError specifically
+             raise
         except Exception as e:
-            logger.error(f"Failed to load data: {e}")
+            logger.error(f"Failed during preprocessing: {e}")
+            raise RuntimeError(f"Failed during preprocessing: {e}")
+
+    def load_data(self) -> None:
+        """Preprocess raw data if needed and load the processed ACLED data."""
+        try:
+            # Preprocess raw data first
+            self._preprocess_raw_data()
+
+            # Now load the processed CSV
+            self.data = pd.read_csv(self.processed_data_path)
+            # Convert event_date to datetime objects after loading
+            if 'event_date' in self.data.columns:
+                 self.data['event_date'] = pd.to_datetime(self.data['event_date'], errors='coerce')
+            else:
+                 logger.warning("Column 'event_date' not found in processed CSV.")
+
+            logger.info(f"Loaded {len(self.data)} events from {self.processed_data_path}")
+
+        except FileNotFoundError:
+             logger.error(f"Preprocessing failed: Raw data file not found.")
+             # Decide how to handle this: raise error, or proceed with empty data?
+             # For now, let's raise to indicate the pipeline dependency failed.
+             raise RuntimeError("Preprocessing failed because the required raw data file was not found.")
+        except Exception as e:
+            logger.error(f"Failed to load or preprocess data: {e}")
             raise
             
     def extract_metadata(self) -> None:

@@ -5,7 +5,7 @@ import sys
 import requests  # type: ignore
 import json
 from typing import Optional, Tuple, List, Dict, Any, cast
-from datetime import date
+from datetime import date, timedelta
 from dotenv import load_dotenv  # auto-load .env
 from pathlib import Path
 
@@ -17,43 +17,96 @@ from src.db.sqlite_writer import init_db, insert_event
 
 load_dotenv()
 
-def get_conflict_feed(limit: int = 100,
+def get_conflict_feed(limit: int = 500,
                       region: Optional[str] = None,
                       date_range: Optional[Tuple[str, str]] = None) -> List[Dict[str, Any]]:
-    """Fetch conflict feed from ACLED with optional region and date range."""
+    """Fetch conflict feed from ACLED, handling pagination."""
     api_key = os.getenv("ACLED_API_KEY")
     if not api_key:
         raise EnvironmentError("ACLED_API_KEY not set in environment")
     email = os.getenv("ACLED_EMAIL")
     if not email:
         raise EnvironmentError("ACLED_EMAIL not set in environment")
-    url = "https://api.acleddata.com/acled/read"
+    
+    all_data: List[Dict[str, Any]] = []
+    next_page_url: Optional[str] = "https://api.acleddata.com/acled/read"
+    
+    # Initial parameters (only for the first request)
     params = {"key": api_key, "limit": limit, "email": email}
     if region:
         params["region"] = region
-    # Default to today's date if no date_range provided
-    if date_range is None:
-        today_str = date.today().isoformat()
-        date_range = (today_str, today_str)
     # Apply date_range (start_date and end_date) for filtering
-    if len(date_range) == 2:
+    if date_range and len(date_range) == 2:
         params["start_date"], params["end_date"] = date_range
-    # Fetch only one record without pagination
-    try:
-        resp = requests.get(url, params=params, timeout=10)
-        resp.raise_for_status()
-    except requests.RequestException as e:
-        raise RuntimeError(f"ACLED API error: {e}")
-    payload = resp.json()
-    data = payload.get("data", [])
-    # Process all records returned by the API
-    # Ensure data is properly formatted
-    if not isinstance(data, list):
-        print("Warning: Unexpected data format from ACLED API")
-        data = []
+    else:
+        # Default to yesterday if no date_range provided
+        yesterday = date.today() - timedelta(days=1)
+        yesterday_str = yesterday.isoformat()
+        params["start_date"] = yesterday_str
+        params["end_date"] = yesterday_str
+        
+    page_count = 0
+    max_pages = 100 # Safety break to prevent infinite loops
+    total_event_limit = 5000 # User-defined total event limit
+
+    while next_page_url and page_count < max_pages:
+        page_count += 1
+        print(f"Fetching ACLED data page {page_count} from: {next_page_url}") # Log progress
+        try:
+            # --- Corrected request logic for pagination ---
+            if page_count == 1:
+                # First page: use base URL and constructed params
+                resp = requests.get(next_page_url, params=params, timeout=120)
+            else:
+                # Subsequent pages: use the full next_page_url directly (no extra params)
+                resp = requests.get(next_page_url, timeout=120)
+            # --- End correction ---
+            resp.raise_for_status()
+        except requests.RequestException as e:
+            # Log error but try to return data fetched so far
+            print(f"ACLED API error on page {page_count}: {e}. Returning partial data.")
+            break # Exit loop on error
+            
+        try:
+            payload = resp.json()
+        except requests.exceptions.JSONDecodeError as e:
+            print(f"Failed to decode JSON on page {page_count}: {e}. Response text: {resp.text[:500]}... Returning partial data.")
+            break # Exit loop on decode error
+
+        # --- DEBUG: Print raw API payload ---
+        if page_count == 1: # Only print for the first page
+            print(f"--- Raw ACLED API Payload (Page {page_count}) ---")
+            print(json.dumps(payload, indent=2))
+            print("--- End Raw Payload ---")
+        # --- End DEBUG ---
+        
+        page_data = payload.get("data", [])
+        if isinstance(page_data, list):
+            all_data.extend(page_data)
+            # --- Check total event limit ---
+            if len(all_data) >= total_event_limit:
+                 print(f"Reached total event limit of {total_event_limit}. Stopping pagination.")
+                 break # Stop fetching more pages
+            # --- End check ---
+        else:
+            print(f"Warning: Unexpected data format on page {page_count}")
+
+        # Get the next page URL from the payload
+        next_page_url = payload.get("next_page")
+        
+        # Clear params after first request as next_page_url contains them
+        if page_count == 1:
+             params = {} # Params are now baked into next_page_url
+
+    if page_count >= max_pages:
+         print(f"Warning: Reached maximum page limit ({max_pages}). Data may be incomplete.")
+
+    # --- Enforce exact limit before returning ---
+    final_data = all_data[:total_event_limit]
+    print(f"Fetched {len(all_data)} events across {page_count} pages. Returning {len(final_data)} events (limit: {total_event_limit}).")
+    # --- End enforcement ---
     
-    # Return all records instead of limiting to first record
-    return data
+    return final_data
     
 
 def flag_event(event: Dict[str, Any], threshold: int = 10) -> Dict[str, Any]:
@@ -72,15 +125,14 @@ def run() -> Dict[str, Any]:
     init_db()
     # Determine region override from environment if provided
     region_override = os.getenv("ACLED_REGION")
-    # Determine date_range override from environment if provided
-    start_date = os.getenv("ACLED_START_DATE")
-    end_date = os.getenv("ACLED_END_DATE")
-    if start_date and end_date:
-        events = get_conflict_feed(region=region_override, date_range=(start_date, end_date))
-        file_date = start_date
-    else:
-        events = get_conflict_feed(region=region_override)
-        file_date = date.today().isoformat()
+    
+    # Always fetch yesterday's data 
+    yesterday = date.today() - timedelta(days=1)
+    yesterday_str = yesterday.isoformat()
+    # Limit parameter is handled by default in get_conflict_feed
+    events = get_conflict_feed(region=region_override, date_range=(yesterday_str, yesterday_str))
+    file_date = yesterday_str # Use yesterday for the filename as well
+    
     # Persist events to SQLite
     for e in events:
         insert_event(e)

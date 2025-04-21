@@ -89,7 +89,7 @@ def log_run(agent_name: str, result: bool) -> None:
 
 # Helper to append entries to the run log
 def _append_runlog(agent_name: str, status: str, timestamp: str, duration: Optional[float] = None, 
-                  tool_risks: Optional[Dict[str, str]] = None) -> None:
+                  tool_risks: Optional[Dict[str, str]] = None, level: str = "INFO") -> None:
     runlog_path = os.path.join('logs', 'runlog.json')
     try:
         os.makedirs(os.path.dirname(runlog_path), exist_ok=True)
@@ -103,7 +103,8 @@ def _append_runlog(agent_name: str, status: str, timestamp: str, duration: Optio
             "timestamp": timestamp, 
             "agent": agent_name, 
             "status": status, 
-            "duration": duration
+            "duration": duration,
+            "level": level
         }
         
         # Add tool risk information if available
@@ -161,7 +162,7 @@ def execute_agent(agent_callable: Callable[..., Any], agent_name: str,
     
     if not is_allowed:
         status = 'blocked_high_risk'
-        _append_runlog(agent_name, status, timestamp, 0, tool_risks)
+        _append_runlog(agent_name, status, timestamp, 0, tool_risks, level="WARNING")
         return {
             "status": "blocked", 
             "message": "Run blocked due to high-risk tools. Use allow_high_risk=True to override."
@@ -175,18 +176,18 @@ def execute_agent(agent_callable: Callable[..., Any], agent_name: str,
             status = 'success'
             end_time = time.time()
             duration = end_time - start_time
-            _append_runlog(agent_name, status, timestamp, duration, tool_risks)
+            _append_runlog(agent_name, status, timestamp, duration, tool_risks, level="INFO")
             return result
         except Exception as e:
             log_run(agent_name, result=False)
             status = 'failure'
             end_time = time.time()
             duration = end_time - start_time
-            _append_runlog(agent_name, status, timestamp, duration, tool_risks)
+            _append_runlog(agent_name, status, timestamp, duration, tool_risks, level="ERROR")
             raise e
     
     # Blocked by timing
     status = 'blocked_interval'
     # No execution, duration = 0
-    _append_runlog(agent_name, status, timestamp, 0, tool_risks)
+    _append_runlog(agent_name, status, timestamp, 0, tool_risks, level="INFO")
     return {"status": "blocked", "message": "Run blocked due to interval constraint."}
