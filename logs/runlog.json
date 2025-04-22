@@ -526,5 +526,137 @@
       "get_content": "low",
       "publish_newsletter": "high"
     }
+  },
+  {
+    "timestamp": "2025-04-22T02:09:09.684871",
+    "agent": "conflict_agent",
+    "status": "success",
+    "duration": 9.491358280181885,
+    "level": "INFO",
+    "tool_risks": {
+      "get_conflict_feed": "low",
+      "flag_event": "medium",
+      "get_summary": "low"
+    }
+  },
+  {
+    "timestamp": "2025-04-22T02:09:19.221667",
+    "agent": "insight_agent",
+    "status": "success",
+    "duration": 0.6527531147003174,
+    "level": "INFO",
+    "tool_risks": {
+      "analyze_conflict": "medium"
+    }
+  },
+  {
+    "timestamp": "2025-04-22T02:09:19.894069",
+    "agent": "llm_report_agent",
+    "status": "success",
+    "duration": 12.043967247009277,
+    "level": "INFO",
+    "tool_risks": {
+      "get_summary": "low",
+      "generate_llm_report": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-22T02:09:31.946761",
+    "agent": "substack_agent",
+    "status": "success",
+    "duration": 0.012968778610229492,
+    "level": "INFO",
+    "tool_risks": {
+      "get_content": "low",
+      "publish_newsletter": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-22T02:26:37.283232",
+    "agent": "conflict_agent",
+    "status": "success",
+    "duration": 23.447904109954834,
+    "level": "INFO",
+    "tool_risks": {
+      "get_conflict_feed": "low",
+      "flag_event": "medium",
+      "get_summary": "low"
+    }
+  },
+  {
+    "timestamp": "2025-04-22T02:27:00.822653",
+    "agent": "insight_agent",
+    "status": "success",
+    "duration": 1.6136741638183594,
+    "level": "INFO",
+    "tool_risks": {
+      "analyze_conflict": "medium"
+    }
+  },
+  {
+    "timestamp": "2025-04-22T02:27:02.461608",
+    "agent": "llm_report_agent",
+    "status": "success",
+    "duration": 4.159587383270264,
+    "level": "INFO",
+    "tool_risks": {
+      "get_summary": "low",
+      "generate_llm_report": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-22T02:27:06.641020",
+    "agent": "substack_agent",
+    "status": "success",
+    "duration": 0.025051593780517578,
+    "level": "INFO",
+    "tool_risks": {
+      "get_content": "low",
+      "publish_newsletter": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-22T02:48:57.217405",
+    "agent": "conflict_agent",
+    "status": "success",
+    "duration": 9.45311164855957,
+    "level": "INFO",
+    "tool_risks": {
+      "get_conflict_feed": "low",
+      "flag_event": "medium",
+      "get_summary": "low"
+    }
+  },
+  {
+    "timestamp": "2025-04-22T02:49:06.745061",
+    "agent": "insight_agent",
+    "status": "success",
+    "duration": 1.341174840927124,
+    "level": "INFO",
+    "tool_risks": {
+      "analyze_conflict": "medium"
+    }
+  },
+  {
+    "timestamp": "2025-04-22T02:49:08.109488",
+    "agent": "llm_report_agent",
+    "status": "success",
+    "duration": 4.895445346832275,
+    "level": "INFO",
+    "tool_risks": {
+      "get_summary": "low",
+      "generate_llm_report": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-22T02:49:13.014643",
+    "agent": "substack_agent",
+    "status": "success",
+    "duration": 0.02171158790588379,
+    "level": "INFO",
+    "tool_risks": {
+      "get_content": "low",
+      "publish_newsletter": "high"
+    }
   }
 ]

@@ -1,25 +1,43 @@
-'''yaml
 # .cursorrules
 
+# Define sets of rules included from other files
 rulesets:
   # Include all .yaml files from the rules/ directory and its subdirectories
   - path: rules/**/*.yaml
-  
   # Include all .yml files from the rules/ directory and its subdirectories
   - path: rules/**/*.yml
 
-# Custom assistant behavior rule
-- id: always-next-three-steps
-  description: Ensure assistant responses always include the next three available steps instead of asking follow-up questions.
-  rules:
-    - rule: next_steps
-      prompt: Always include the next three available steps at the end of your response and do not ask what to do next.
+# Define individual custom rules directly
+rules:
+  # Custom assistant behavior rule
+  - id: always-next-three-steps
+    description: Ensure assistant responses always include the next three available steps instead of asking follow-up questions.
+    rules:
+      - rule: next_steps
+        prompt: Always include the next three available steps at the end of your response and do not ask what to do next.
 
-# Optionally, you can define additional rulesets directly here
-# - id: my-specific-ruleset
-#   description: Rules for a specific component
-#   rules:
-#     - rule: enforce-type-hints
-#       pattern: src/core/**/*.py
-#       prompt: Ensure all function parameters and return values have type hints.
-'''
+  # AI Memory Management Rule
+  - id: ai_memory_management
+    description: Maintain consistency and adapt to user/project-specific needs by remembering preferences, facts, and conventions.
+    # Using 'config' or similar key, as 'rules' block has specific meaning for applying logic
+    config:
+      enabled: true
+      storage:
+        file: "rules/learned-memories.mdc"
+        format: "keyed memory entries"
+      update_protocol:
+        steps:
+          - step: Identify Key Information
+            action: Extract core piece of knowledge to store
+          - step: Check Existing Memory
+            action: Review `learned-memories.mdc` to detect conflicts or updates
+          - step: Propose Update
+            action: Suggest concise edits or additions to `learned-memories.mdc`
+
+  # Example of another potential rule definition
+  # - id: my-specific-ruleset
+  #   description: Rules for a specific component
+  #   rules:
+  #     - rule: enforce-type-hints
+  #       pattern: src/core/**/*.py
+  #       prompt: Ensure all function parameters and return values have type hints.

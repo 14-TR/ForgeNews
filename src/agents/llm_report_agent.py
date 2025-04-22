@@ -276,7 +276,7 @@ def run() -> Dict[str, Any]:
             f"**Total Fatalities:** {total_fatalities}  \n"
             # f"**Escalation Status:** {'⚠️ Escalating' if insights.get('is_escalating', False) else 'Stable'}  \n" # Removed
             f"**Countries Affected:** {len(country_profiles_data)}  \n"
-            f"**Strategic Alerts:** {len(strategic_alerts_data)}  \n\n"
+            # f"**Strategic Alerts:** {len(strategic_alerts_data)}  \n\n" # Removed strategic alerts count
         )
         report_sections.append(overview)
 
@@ -303,12 +303,12 @@ def run() -> Dict[str, Any]:
         for hotspot in hotspots_data[:3]:
              prompt_lines.append(f"- {hotspot.get('location', '?')}, {hotspot.get('country', '?')}: {hotspot.get('count', 0)} events, {hotspot.get('fatalities', 0)} fatalities")
 
-        prompt_lines.append("\nStrategic Alerts:")
-        strategic_alerts_data = insights.get('strategic_alerts') or [] # Ensure list before slicing
-        for alert in strategic_alerts_data[:3]:
-            prompt_lines.append(f"- {alert.get('type', 'Alert')}: {alert.get('description', 'No description')}")
+        # prompt_lines.append("\nStrategic Alerts:") # Removed strategic alerts from prompt
+        # strategic_alerts_data = insights.get('strategic_alerts') or [] # Ensure list before slicing
+        # for alert in strategic_alerts_data[:3]:
+        #     prompt_lines.append(f"- {alert.get('type', 'Alert')}: {alert.get('description', 'No description')}")
             
-        prompt_lines.append("\nPlease provide a concise narrative summary (2-4 paragraphs) focusing on the overall situation, key conflict dynamics, major hotspots, and any significant strategic developments or alerts.")
+        prompt_lines.append("\nPlease provide a concise narrative summary (2-4 paragraphs) focusing on the overall situation, key conflict dynamics, and major hotspots. Strategic risks are now visualized on the map.") # Updated prompt guidance
         
         prompt = "\n".join(prompt_lines)
         
@@ -332,7 +332,7 @@ def run() -> Dict[str, Any]:
         
         # 4. Add generated sections for hotspots, alerts, countries, events
         report_sections.append(generate_hotspots_section(hotspots_data))
-        report_sections.append(generate_strategic_alerts_section(strategic_alerts_data))
+        # report_sections.append(generate_strategic_alerts_section(strategic_alerts_data)) # Removed strategic alerts section
         
         # Generate Country Profiles section
         report_sections.append("## Country Profiles\n\n")
