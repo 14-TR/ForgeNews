@@ -1,5 +1,6 @@
 import os
 import requests
+from src.scoring.scorer import score_insight
 
 API_BASE = "https://api.acleddata.com/acled/read"
 
@@ -30,14 +31,18 @@ def normalize(raw):
     """Normalize ACLED data to standard format."""
     normalized = []
     for event in raw:
-        normalized.append({
-            "source": "acled",
+        headline = f"{event['actor1']} - {event['actor2']} conflict"
+        summary = event["notes"]
+        normalized.append(score_insight({
+            "domain": "conflict",
+            "title": headline,
+            "body": summary,
+            "source_id": "acled",
             "event_date": event["event_date"],
             "actor1": event["actor1"],
             "actor2": event["actor2"],
-            "summary": event["notes"],
             "lat": event["latitude"],
             "lon": event["longitude"],
             "fatalities": event["fatalities"]
-        })
+        }))
     return normalized 

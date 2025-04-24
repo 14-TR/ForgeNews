@@ -14,6 +14,8 @@ import logging
 from collections import defaultdict
 import numpy as np
 import glob
+from src.scoring.scorer import score_insight, DOMAIN_KEYWORDS
+from src.sources.loader import load_registry, get_source
 
 # Set up logging
 logging.basicConfig(level=logging.INFO,
@@ -744,6 +746,42 @@ class InsightAgent:
         
         logger.info(f"Saved insights to {filepath}")
         return filepath
+
+def run() -> Dict[str, Any]:
+    """
+    Run the insight agent to collect insights from all sources.
+    
+    Returns:
+        Dict containing all structured insights
+    """
+    all_insights = []
+    source_registry = load_registry()
+    
+    # gather raw events from loader
+    for dom in ["conflict","ai","markets"]:
+        for src_meta in source_registry[dom]:
+            mod = get_source(dom, src_meta["id"])
+            try:
+                raw = mod.normalize(mod.fetch())
+                all_insights.extend(raw)
+                logger.info(f"Collected {len(raw)} insights from {dom}/{src_meta['id']}")
+            except Exception as e:
+                logger.error(f"Error processing {dom}/{src_meta['id']}: {e}")
+    
+    # persist scored insights json -> data/processed/insights_<date>.json
+    output_dir = os.path.join("data", "processed", "insights")
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Generate filename based on current time
+    filename = f"insights_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    filepath = os.path.join(output_dir, filename)
+    
+    # Save to file
+    with open(filepath, 'w', encoding='utf-8') as f:
+        json.dump(all_insights, f, indent=2, ensure_ascii=False)
+    
+    logger.info(f"Saved {len(all_insights)} insights to {filepath}")
+    return {"insights": all_insights, "filepath": filepath}
 
 if __name__ == "__main__":
     agent = InsightAgent()
