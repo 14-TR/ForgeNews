@@ -114,6 +114,19 @@ Run the test suite:
 pytest src/tests
 ```
 
+### MCP Server
+Run a lightweight server exposing:
+1. **get_insights** – pull latest scored signals
+2. **generate_daily_brief** – returns today's HTML brief
+3. **score_text** – apply ForgeNews heuristics to any text  
+Plus prompt **quick-summary** for one-line TL;DRs.
+
+```bash
+python -m src.mcp.forge_server  # stdio mode
+```
+
+Connect from any MCP-compatible client (Claude Desktop, VS Code, etc.).
+
 ## Next Steps
 - Scale existing agents with more advanced logic
 - Finalize guardrails and tool metadata
