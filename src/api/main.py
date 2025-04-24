@@ -2,8 +2,8 @@
 API entrypoint for the ForgeNews platform orchestrator (ctrl).
 """
 
-from fastapi import FastAPI, HTTPException, Request
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException, Request, status
+from pydantic import BaseModel, EmailStr
 import json
 import os
 import sys
@@ -19,6 +19,12 @@ from src.core.ctrl import execute_agent, AGENT_REGISTRY
 # Import guardrail logic to protect agent calls
 from src.core.guardrails import execute_guardrails
 
+# Import subscriber database functions
+from src.db.subscribers_db import init_db, add_subscriber, remove_subscriber, confirm_subscriber
+
+# Initialize the subscriber database and table on startup
+init_db()
+
 # Initialize FastAPI app
 app = FastAPI(title="ForgeNews ctrl API", version="0.1")
 
@@ -26,6 +32,10 @@ app = FastAPI(title="ForgeNews ctrl API", version="0.1")
 class AgentRequest(BaseModel):
     agent_name: str
     input_text: str
+
+# Pydantic model for email validation in the request body
+class SubscriberEmail(BaseModel):
+    email: EmailStr
 
 class LogFilter(BaseModel):
     agent_name: Optional[str] = None
@@ -177,3 +187,57 @@ def get_latest_insight() -> Dict[str, Any]:
             return preview
     except Exception:
         return {}
+
+# --- Subscriber Signup Endpoint ---
+
+@app.post("/signup/", status_code=status.HTTP_201_CREATED)
+async def signup_subscriber(subscriber: SubscriberEmail):
+    """
+    Adds a new subscriber email to the database.
+    Validates the email format using Pydantic's EmailStr.
+    Returns 201 if successful, 400 if email already exists, 500 for other errors.
+    """
+    success, message = add_subscriber(subscriber.email)
+    if success:
+        return {"message": message}
+    elif message == "Email already subscribed.":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=message)
+    else:
+        # Handle other potential database errors
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=message)
+
+# --- Subscriber Unsubscribe Endpoint ---
+
+@app.delete("/unsubscribe/")
+async def unsubscribe_subscriber(subscriber: SubscriberEmail):
+    """
+    Removes a subscriber email from the database.
+    Validates the email format using Pydantic's EmailStr.
+    Returns 200 if successful, 404 if email not found, 500 for other errors.
+    """
+    success, message = remove_subscriber(subscriber.email)
+    if success:
+        return {"message": message}
+    elif message == "Email not found.":
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
+    else:
+        # Handle other potential database errors
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=message)
+
+# --- Subscriber Confirmation Endpoint ---
+
+@app.get("/confirm/{token}")
+async def confirm_subscription(token: str):
+    """
+    Confirms a subscriber's email using the provided token.
+    The token is passed as a path parameter.
+    Returns 200 if successful, 404 if token is invalid/expired, 500 for DB errors.
+    """
+    success, message = confirm_subscriber(token)
+    if success:
+        return {"message": message} # Typically "Email confirmed successfully."
+    elif message == "Invalid or expired confirmation token.":
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
+    else:
+        # Handle other potential database errors
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=message)
