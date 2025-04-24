@@ -8,6 +8,7 @@ ForgeNews is a modular, multi-agent system for global intelligence gathering in 
 - **Guardrails**: Input safety, relevance, and moderation checks with PII filtering.
 - **API & CLI**: Run agents via HTTP (`/run-agent/`) or command line (`scripts/run_agent.py`).
 - **Persistent Logging**: Tracks runs with timestamps, durations, and outcomes in `logs/runlog.json`.
+- **Markets:** Stooq free quotes (CC-BY), US Federal Reserve FRED API (public-domain).
 
 ## Setup
 1. Clone the repository:
