@@ -9,6 +9,7 @@ import os
 import sys
 from datetime import datetime
 from typing import Dict, Any, List, Optional
+from fastapi.responses import HTMLResponse
 
 # Add the parent directory to the Python path to make imports work
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
@@ -21,6 +22,9 @@ from src.core.guardrails import execute_guardrails
 
 # Import subscriber database functions
 from src.db.subscribers_db import init_db, add_subscriber, remove_subscriber, confirm_subscriber
+
+# Import newsletter renderer
+from src.core.newsletter_renderer import render_latest_insights_html
 
 # Initialize the subscriber database and table on startup
 init_db()
@@ -241,3 +245,19 @@ async def confirm_subscription(token: str):
     else:
         # Handle other potential database errors
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=message)
+
+# --- Newsletter Preview Endpoint ---
+
+@app.get("/preview-newsletter/", response_class=HTMLResponse)
+async def preview_newsletter():
+    """
+    Generates an HTML preview of the newsletter based on the latest insights file.
+    Returns the HTML content directly.
+    """
+    html_content = render_latest_insights_html()
+    if not html_content or html_content.startswith("<p>Error:"):
+        # Return a simple error message as HTML if rendering failed
+        error_message = html_content or "<p>Unknown error generating newsletter preview.</p>"
+        return HTMLResponse(content=error_message, status_code=500)
+        
+    return HTMLResponse(content=html_content, status_code=200)
