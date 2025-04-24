@@ -17,7 +17,7 @@ from src.db.sqlite_writer import init_db, insert_event
 
 load_dotenv()
 
-def get_conflict_feed(limit: int = 500,
+def get_conflict_feed(limit: int = 5000,
                       region: Optional[str] = None,
                       date_range: Optional[Tuple[str, str]] = None) -> List[Dict[str, Any]]:
     """Fetch conflict feed from ACLED, handling pagination."""

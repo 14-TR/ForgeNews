@@ -21,8 +21,8 @@ rules/*
 __pycache__/
 **/__pycache__/*
 *.pyc
-
-
+*.log
+*.json
 project.json
 src/agents/__pycache__/conflict_agent.cpython-312.pyc
 src/core/__pycache__/ctrl.cpython-312.pyc
@@ -35,3 +35,6 @@ src/__pycache__/__init__.cpython-312.pyc
 src/agents/__pycache__/conflict_agent.cpython-312.pyc
 src/core/__pycache__/ctrl.cpython-312.pyc
 src/core/__pycache__/guardrails.cpython-312.pyc
+data/*
+logs/*
+
