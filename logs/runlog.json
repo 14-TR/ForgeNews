@@ -1,1 +1,46 @@
-[]
+[
+  {
+    "timestamp": "2025-04-25T00:10:46.409770",
+    "agent": "conflict_agent",
+    "status": "success",
+    "duration": 9.688165664672852,
+    "level": "INFO",
+    "tool_risks": {
+      "get_conflict_feed": "low",
+      "flag_event": "medium",
+      "get_summary": "low"
+    }
+  },
+  {
+    "timestamp": "2025-04-25T00:10:57.155116",
+    "agent": "insight_agent",
+    "status": "success",
+    "duration": 2.3020360469818115,
+    "level": "INFO",
+    "tool_risks": {
+      "analyze_conflict": "medium"
+    }
+  },
+  {
+    "timestamp": "2025-04-25T00:10:59.572864",
+    "agent": "llm_report_agent",
+    "status": "success",
+    "duration": 4.5959742069244385,
+    "level": "INFO",
+    "tool_risks": {
+      "get_summary": "low",
+      "generate_llm_report": "high"
+    }
+  },
+  {
+    "timestamp": "2025-04-25T00:11:04.172969",
+    "agent": "substack_agent",
+    "status": "success",
+    "duration": 0.049687862396240234,
+    "level": "INFO",
+    "tool_risks": {
+      "get_content": "low",
+      "publish_newsletter": "high"
+    }
+  }
+]
