@@ -39,6 +39,7 @@ class InsightAgent:
         self.processed_data_dir = Path(processed_data_dir)
         self.processed_data_path = self.processed_data_dir / "acled_processed.csv"
         self.data = None
+        self.source_raw_filename = None
         self.insights = {
             "metadata": {
                 "generated_at": "",
@@ -67,6 +68,7 @@ class InsightAgent:
 
             latest_file = max(list_of_files, key=os.path.getctime)
             logger.info(f"Found latest raw data file: {latest_file}")
+            self.source_raw_filename = os.path.basename(latest_file)
 
             # Load the raw JSON data
             with open(latest_file, 'r', encoding='utf-8') as f:
@@ -458,7 +460,8 @@ class InsightAgent:
                 "event_types": event_types,
                 "trend": trend,
                 "first_event": row['first_event'].strftime("%Y-%m-%d"),
-                "last_event": row['last_event'].strftime("%Y-%m-%d")
+                "last_event": row['last_event'].strftime("%Y-%m-%d"),
+                "source_file": self.source_raw_filename
             })
         
         self.insights["hotspots"] = hotspots

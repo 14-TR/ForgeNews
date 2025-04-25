@@ -42,5 +42,15 @@
       "get_content": "low",
       "publish_newsletter": "high"
     }
+  },
+  {
+    "timestamp": "2025-04-25T01:22:34.494966",
+    "agent": "insight_agent",
+    "status": "success",
+    "duration": 2.2349910736083984,
+    "level": "INFO",
+    "tool_risks": {
+      "analyze_conflict": "medium"
+    }
   }
 ]

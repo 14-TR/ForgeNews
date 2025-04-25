@@ -48,7 +48,7 @@ AGENT_TOOLS = {
     "llm_report_agent": ["get_summary", "generate_llm_report"],
     "ctrl_agent": ["monitor_agents"],
     "ai_news_agent": ["get_ai_news"],
-    "insight_agent": ["analyze_conflict"]
+    "insight_agent": ["analyze_conflict"],
 }
 
 def load_state() -> Dict[str, Any]:

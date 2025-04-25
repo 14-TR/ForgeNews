@@ -9,7 +9,8 @@ import os
 import sys
 from datetime import datetime
 from typing import Dict, Any, List, Optional
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
+from pathlib import Path
 
 # Add the parent directory to the Python path to make imports work
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
@@ -25,6 +26,9 @@ from src.db.subscribers_db import init_db, add_subscriber, remove_subscriber, co
 
 # Import newsletter renderer
 from src.core.newsletter_renderer import render_latest_insights_html
+
+# Import FileResponse for serving map files
+from fastapi.responses import FileResponse
 
 # Initialize the subscriber database and table on startup
 init_db()
@@ -261,3 +265,25 @@ async def preview_newsletter():
         return HTMLResponse(content=error_message, status_code=500)
         
     return HTMLResponse(content=html_content, status_code=200)
+
+# --- Map Preview Endpoint ---
+
+@app.get("/preview-map/{map_filename}")
+async def preview_map(map_filename: str):
+    """
+    Serves a specific interactive map HTML file from the /data/maps directory.
+    Example: /preview-map/map_Kyiv.html
+    """
+    # Basic input validation/sanitization (prevent directory traversal)
+    if ".." in map_filename or "/" in map_filename or "\\" in map_filename:
+         raise HTTPException(status_code=400, detail="Invalid map filename.")
+
+    # Construct the full path relative to the project root
+    # Assumes API is run from project root or paths are handled correctly
+    map_dir = Path("data") / "maps"
+    file_path = map_dir / map_filename
+
+    if file_path.is_file() and file_path.suffix == ".html":
+        return FileResponse(str(file_path), media_type="text/html")
+    
+    raise HTTPException(status_code=404, detail=f"Map not found: {map_filename}")
