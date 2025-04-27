@@ -229,6 +229,45 @@ def generate_visualizations_section(insights: Dict[str, Any]) -> str:
     
     return section
 
+def generate_insight_section(insights: List[Dict[str, Any]]) -> str:
+    """Generate a Markdown section for insights with scores."""
+    section = "## Key Insights\n\n"
+    
+    if not insights:
+        section += "No insights available for this period.\n\n"
+        return section
+    
+    # Group insights by domain
+    domains = {}
+    for ins in insights:
+        domain = ins.get('domain')
+        if domain not in domains:
+            domains[domain] = []
+        domains[domain].append(ins)
+    
+    # Add insights by domain
+    for domain, domain_insights in domains.items():
+        section += f"### {domain.title()} Domain\n\n"
+        
+        # Sort by relevance and novelty (combined score)
+        sorted_insights = sorted(
+            domain_insights, 
+            key=lambda x: (x.get('relevance', 0) + x.get('novelty', 0)), 
+            reverse=True
+        )[:5]  # Show top 5 per domain
+        
+        for ins in sorted_insights:
+            section += f"**{ins.get('title', 'Untitled Insight')}**\n\n"
+            section += f"{ins.get('body', 'No details available.')}\n\n"
+            
+            # Add signal scores
+            section += f"<p class='meta'>Signal Score: Relevance {ins.get('relevance', 'N/A')}, Novelty {ins.get('novelty', 'N/A')}"
+            if ins.get('domain') == "markets":
+                section += f", Volatility {ins.get('volatility', 'N/A')}"
+            section += f", Confidence: {ins.get('confidence', 'low').title()}</p>\n\n"
+    
+    return section
+
 def run() -> Dict[str, Any]:
     """Entrypoint for generating an enhanced narrative report via LLM"""
     try:
@@ -341,6 +380,20 @@ def run() -> Dict[str, Any]:
                  report_sections.append(generate_country_section(country, profile))
         else:
              report_sections.append("No country-specific data available.\n\n")
+
+        # Add insights section with scores
+        try:
+            # Try to load individual insights with scores
+            insights_pattern = os.path.join("data", "processed", "insights", "insights_*.json")
+            insights_files = glob.glob(insights_pattern)
+            if insights_files:
+                latest_insights_file = max(insights_files, key=os.path.getmtime)
+                with open(latest_insights_file, "r", encoding="utf-8") as f:
+                    insights_data = json.load(f)
+                report_sections.append(generate_insight_section(insights_data))
+        except Exception as insight_error:
+            print(f"Error loading insights: {insight_error}")
+            # Continue with report generation even if insights section fails
 
         # Generate Event Type Analysis section
         report_sections.append("## Event Type Analysis\n\n")

@@ -8,6 +8,7 @@ ForgeNews is a modular, multi-agent system for global intelligence gathering in 
 - **Guardrails**: Input safety, relevance, and moderation checks with PII filtering.
 - **API & CLI**: Run agents via HTTP (`/run-agent/`) or command line (`scripts/run_agent.py`).
 - **Persistent Logging**: Tracks runs with timestamps, durations, and outcomes in `logs/runlog.json`.
+- **Markets:** Stooq free quotes (CC-BY), US Federal Reserve FRED API (public-domain).
 
 ## Setup
 1. Clone the repository:
@@ -93,11 +94,38 @@ The `llm_report_agent` generates a detailed narrative based on the conflict summ
    ```
    The markdown report will be saved to `reports/report_<YYYYMMDD>.md`.
 
+## Signal Scoring
+
+Each `Insight` carries heuristic scores (`relevance`, `novelty`, `volatility`, `confidence`). Scoring logic lives in `src/scoring/`. Novelty uses a rolling 30-day TF-IDF-ish memory stored at `data/.novelty_index.json`.
+
+- **Relevance**: Measures how well the content aligns with the domain's keywords
+- **Novelty**: Tracks content uniqueness against recently seen content (30-day window)
+- **Volatility**: For markets, measures the magnitude of price movements
+- **Confidence**: Determined by a combination of relevance and novelty scores
+
+You can adjust the novelty memory location in your `.env` file:
+```env
+FORGENEWS_NOVELTY_MEM=data/.novelty_index.json
+```
+
 ## Testing
 Run the test suite:
 ```bash
 pytest src/tests
 ```
+
+### MCP Server
+Run a lightweight server exposing:
+1. **get_insights** – pull latest scored signals
+2. **generate_daily_brief** – returns today's HTML brief
+3. **score_text** – apply ForgeNews heuristics to any text  
+Plus prompt **quick-summary** for one-line TL;DRs.
+
+```bash
+python -m src.mcp.forge_server  # stdio mode
+```
+
+Connect from any MCP-compatible client (Claude Desktop, VS Code, etc.).
 
 ## Next Steps
 - Scale existing agents with more advanced logic

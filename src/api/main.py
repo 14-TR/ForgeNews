@@ -2,13 +2,15 @@
 API entrypoint for the ForgeNews platform orchestrator (ctrl).
 """
 
-from fastapi import FastAPI, HTTPException, Request
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException, Request, status
+from pydantic import BaseModel, EmailStr
 import json
 import os
 import sys
 from datetime import datetime
 from typing import Dict, Any, List, Optional
+from fastapi.responses import HTMLResponse, FileResponse
+from pathlib import Path
 
 # Add the parent directory to the Python path to make imports work
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
@@ -19,6 +21,18 @@ from src.core.ctrl import execute_agent, AGENT_REGISTRY
 # Import guardrail logic to protect agent calls
 from src.core.guardrails import execute_guardrails
 
+# Import subscriber database functions
+from src.db.subscribers_db import init_db, add_subscriber, remove_subscriber, confirm_subscriber
+
+# Import newsletter renderer
+from src.core.newsletter_renderer import render_latest_insights_html
+
+# Import FileResponse for serving map files
+from fastapi.responses import FileResponse
+
+# Initialize the subscriber database and table on startup
+init_db()
+
 # Initialize FastAPI app
 app = FastAPI(title="ForgeNews ctrl API", version="0.1")
 
@@ -26,6 +40,10 @@ app = FastAPI(title="ForgeNews ctrl API", version="0.1")
 class AgentRequest(BaseModel):
     agent_name: str
     input_text: str
+
+# Pydantic model for email validation in the request body
+class SubscriberEmail(BaseModel):
+    email: EmailStr
 
 class LogFilter(BaseModel):
     agent_name: Optional[str] = None
@@ -177,3 +195,95 @@ def get_latest_insight() -> Dict[str, Any]:
             return preview
     except Exception:
         return {}
+
+# --- Subscriber Signup Endpoint ---
+
+@app.post("/signup/", status_code=status.HTTP_201_CREATED)
+async def signup_subscriber(subscriber: SubscriberEmail):
+    """
+    Adds a new subscriber email to the database.
+    Validates the email format using Pydantic's EmailStr.
+    Returns 201 if successful, 400 if email already exists, 500 for other errors.
+    """
+    success, message = add_subscriber(subscriber.email)
+    if success:
+        return {"message": message}
+    elif message == "Email already subscribed.":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=message)
+    else:
+        # Handle other potential database errors
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=message)
+
+# --- Subscriber Unsubscribe Endpoint ---
+
+@app.delete("/unsubscribe/")
+async def unsubscribe_subscriber(subscriber: SubscriberEmail):
+    """
+    Removes a subscriber email from the database.
+    Validates the email format using Pydantic's EmailStr.
+    Returns 200 if successful, 404 if email not found, 500 for other errors.
+    """
+    success, message = remove_subscriber(subscriber.email)
+    if success:
+        return {"message": message}
+    elif message == "Email not found.":
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
+    else:
+        # Handle other potential database errors
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=message)
+
+# --- Subscriber Confirmation Endpoint ---
+
+@app.get("/confirm/{token}")
+async def confirm_subscription(token: str):
+    """
+    Confirms a subscriber's email using the provided token.
+    The token is passed as a path parameter.
+    Returns 200 if successful, 404 if token is invalid/expired, 500 for DB errors.
+    """
+    success, message = confirm_subscriber(token)
+    if success:
+        return {"message": message} # Typically "Email confirmed successfully."
+    elif message == "Invalid or expired confirmation token.":
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
+    else:
+        # Handle other potential database errors
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=message)
+
+# --- Newsletter Preview Endpoint ---
+
+@app.get("/preview-newsletter/", response_class=HTMLResponse)
+async def preview_newsletter():
+    """
+    Generates an HTML preview of the newsletter based on the latest insights file.
+    Returns the HTML content directly.
+    """
+    html_content = render_latest_insights_html()
+    if not html_content or html_content.startswith("<p>Error:"):
+        # Return a simple error message as HTML if rendering failed
+        error_message = html_content or "<p>Unknown error generating newsletter preview.</p>"
+        return HTMLResponse(content=error_message, status_code=500)
+        
+    return HTMLResponse(content=html_content, status_code=200)
+
+# --- Map Preview Endpoint ---
+
+@app.get("/preview-map/{map_filename}")
+async def preview_map(map_filename: str):
+    """
+    Serves a specific interactive map HTML file from the /data/maps directory.
+    Example: /preview-map/map_Kyiv.html
+    """
+    # Basic input validation/sanitization (prevent directory traversal)
+    if ".." in map_filename or "/" in map_filename or "\\" in map_filename:
+         raise HTTPException(status_code=400, detail="Invalid map filename.")
+
+    # Construct the full path relative to the project root
+    # Assumes API is run from project root or paths are handled correctly
+    map_dir = Path("data") / "maps"
+    file_path = map_dir / map_filename
+
+    if file_path.is_file() and file_path.suffix == ".html":
+        return FileResponse(str(file_path), media_type="text/html")
+    
+    raise HTTPException(status_code=404, detail=f"Map not found: {map_filename}")
