@@ -46,8 +46,10 @@ def get_conflict_feed(limit: int = 5000,
         params["end_date"] = yesterday_str
         
     page_count = 0
-    max_pages = 100 # Safety break to prevent infinite loops
-    total_event_limit = 5000 # User-defined total event limit
+    max_pages = 100  # Safety break to prevent infinite loops
+    # Respect the caller provided limit for the overall number of events
+    # returned rather than using a fixed constant.
+    total_event_limit = limit
 
     while next_page_url and page_count < max_pages:
         page_count += 1
