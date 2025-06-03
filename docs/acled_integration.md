@@ -1,6 +1,6 @@
 # ACLED API Integration Guide
 
-This guide describes how to configure Cursor AI to interact with the Armed Conflict Location & Event Data Project (ACLED) API.
+This guide describes how to configure ForgeNews to interact with the Armed Conflict Location & Event Data Project (ACLED) API.
 
 ## 1. Register and Obtain API Credentials
 
@@ -42,9 +42,9 @@ Use `limit` and `offset` to paginate:
 https://api.acleddata.com/acled/read?email=...&key=...&country=Kenya&limit=100&offset=100
 ```
 
-## 5. Integrate with Cursor AI
+## 5. Integrate with ForgeNews
 
-1. **Load Credentials**: Use a `.env` file or env vars for `ACLED_API_KEY` and `ACLED_EMAIL`. Cursor AI auto-loads `.env`.
+1. **Load Credentials**: Use a `.env` file or environment variables for `ACLED_API_KEY` and `ACLED_EMAIL`. ForgeNews auto-loads `.env`.
 2. **Fetch Function**: `get_conflict_feed` in `src/agents/conflict_agent.py` constructs and sends the HTTP request.
 3. **Date Overrides**: Use env vars (`ACLED_START_DATE`, `ACLED_END_DATE`) or CLI flags to specify dates.
 4. **Region Overrides**: Use `ACLED_REGION` env var or CLI flags.
